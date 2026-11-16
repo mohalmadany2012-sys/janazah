@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <meta name="theme-color" content="#0284C7">
+  <title>Janazah Guide | دليل الجنازة</title>
+  
+  <!-- الخطوط الخارجية المعتمدة -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:opsz,wght@14..32,300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- ملف التنسيقات الخارجي -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark">
+
+<!-- 1. شاشة البداية المستقلة الفاخرة (تدار عبر splash.js) -->
+<div id="alwaysOnSplashScreen" class="always-on-splash">
+  <div class="splash-ambient-glow"></div>
+  <div class="splash-content">
+    <div class="splash-icon-stage">
+      <div class="splash-orbit-halo"></div>
+      <div class="splash-icon-wrapper">
+        <img src="app-icon.png" alt="Janazah Guide" class="splash-app-icon" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'96\' height=\'96\' viewBox=\'0 0 96 96\'><rect width=\'96\' height=\'96\' rx=\'24\' fill=\'%230284c7\'/><text x=\'50%25\' y=\'52%25\' font-size=\'42\' text-anchor=\'middle\' fill=\'white\' dy=\'.3em\'>🕌</text></svg>';">
+      </div>
+    </div>
+    <div class="splash-title" id="splashTitleText">دليل الجنازة</div>
+    <div class="splash-subtitle" id="splashSubText">صفة صلاة الجنازة وأحكامها</div>
+    <div class="splash-loader-container">
+      <div class="splash-progress-track">
+        <div class="splash-progress-fill" id="splashProgressFill"></div>
+      </div>
+      <div class="splash-status-text" id="splashStatusText">جاري التحقق من التحديثات...</div>
+    </div>
+  </div>
+</div>
+
+<!-- 1. نافذة التحديث الزجاجية المترجمة بالكامل -->
+<div id="updateRequiredModal" class="modal" style="z-index: 55000;">
+  <div class="modal-card update-glass-card">
+    <div class="update-icon-circle">✨</div>
+    <h3 class="update-title" id="updateTitle">تحديث جديد متوفر</h3>
+    <p class="update-desc" id="updateDesc">يتوفر إصدار أحدث وأكثر استقراراً من تطبيق دليل الجنازة على متجر Google Play.</p>
+    <div class="update-actions-col">
+      <a href="https://play.google.com/store/apps/details?id=com.mohalmadany.janaza" target="_blank" rel="noopener noreferrer" class="btn-primary btn-update-store" id="btnUpdateStore">
+        <span id="btnUpdateNowText">تحديث الآن</span>
+        <span>↗</span>
+      </a>
+      <button type="button" class="btn-update-later" id="btnUpdateLater" onclick="dismissUpdateModal()">
+        لاحقاً
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- إشعار إتمام الصلاة والقبول -->
+<div id="completionBanner" class="completion-banner">
+  <span>✨</span>
+  <span id="completionBannerText">تقبل الله - تم إنهاء الصلاة</span>
+</div>
+
+<!-- تنبيه النظام العام -->
+<div id="navAlertToast" class="nav-alert-toast"></div>
+
+<!-- شاشة التهيئة 1: اختيار اللغة -->
+<div id="langOnboardingModal" class="onboarding-overlay" style="display:none;">
+  <div class="onboarding-card">
+    <div style="font-size:2.3rem; margin-bottom:10px;">🌐</div>
+    <h2 id="onboardLangTitle" style="margin-bottom:12px; font-size:1.25rem;">اختر اللغة</h2>
+    <div class="lang-grid-container" id="onboardLangGrid"></div>
+    
+    <label class="checkbox-container">
+      <input type="checkbox" id="dontAskCheckbox">
+      <span id="dontAskLabel">عدم السؤال مرة أخرى</span>
+    </label>
+
+    <button id="saveLangBtn" class="btn-primary" onclick="proceedToColorOnboarding()">متابعة ←</button>
+  </div>
+</div>
+
+<!-- شاشة التهيئة 2: اختيار اللون المميز -->
+<div id="colorOnboardingModal" class="onboarding-overlay" style="display:none;">
+  <div class="onboarding-card">
+    <div style="font-size:2.3rem; margin-bottom:8px;">🎨</div>
+    <h2 id="onboardColorTitle" style="font-size:1.25rem;">اختر اللون المميز</h2>
+    <p style="font-size:0.78rem; color:var(--text-secondary); margin-bottom:12px;" id="onboardColorSub">اختر اللون المفضل لواجهة التطبيق</p>
+    
+    <!-- 6 ألوان فخمة متناسقة في المنتصف -->
+    <div class="color-palette color-palette-six" id="onboardColorPalette"></div>
+    
+    <!-- زر ألوان إضافية الفاخر -->
+    <button type="button" class="btn-extra-colors-luxury" onclick="openCustomColor(true)" style="margin: 12px 0 16px;">
+      <span class="extra-colors-spectrum-icon">🎨</span>
+      <span class="btn-extra-colors-text">ألوان إضافية</span>
+    </button>
+    
+    <button id="startAppBtn" class="btn-primary" onclick="finishOnboarding()">ابدأ التطبيق</button>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <!-- شريط جلسة الصلاة المباشرة -->
+  <div id="prayerSessionTopBar" style="display: none;">
+    <div class="session-top-bar">
+      <div class="session-progress-wrapper">
+        <div class="progress-strip" id="progressContainer"></div>
+      </div>
+      <button type="button" class="btn-exit-session" onclick="exitPrayerSession(true)">
+        <span>✕</span>
+        <span id="exitSessionBtnText">إنهاء الصلاة</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. شريط أدوات التخصيص الحي لأحجام النصوص (Live Text Size Customizer) -->
+  <div id="liveTextCustomizerToolbar" class="live-customizer-toolbar" style="display: none;">
+    <div class="customizer-toolbar-header">
+      <div class="customizer-title-row">
+        <span class="customizer-title" id="liveTextCustTitle">🔠 تخصيص أحجام النصوص</span>
+      </div>
+      <button type="button" class="btn-customizer-save" id="btnLiveTextCustSave" onclick="saveAndExitTextCustomizer()">
+        حفظ وخروج ✓
+      </button>
+    </div>
+
+    <div class="text-size-sliders-list">
+      <div class="text-size-slider-row">
+        <div class="slider-label-line">
+          <span class="bidi-safe" id="lblCustArabicSize">النص العربي</span><span class="colon-sep">:</span>
+          <span class="slider-val-badge" id="valCustArabicSize">1.55rem</span>
+        </div>
+        <input type="range" id="rngCustArabicSize" min="1.15" max="2.65" step="0.05" value="1.55" oninput="updateLiveTextScale('arabic', this.value)">
+      </div>
+
+      <div class="text-size-slider-row" id="rowCustTranslitSize">
+        <div class="slider-label-line">
+          <span class="bidi-safe" id="lblCustTranslitSize">النطق اللاتيني</span><span class="colon-sep">:</span>
+          <span class="slider-val-badge" id="valCustTranslitSize">0.88rem</span>
+        </div>
+        <input type="range" id="rngCustTranslitSize" min="0.72" max="1.45" step="0.03" value="0.88" oninput="updateLiveTextScale('translit', this.value)">
+      </div>
+
+      <div class="text-size-slider-row" id="rowCustTransSize">
+        <div class="slider-label-line">
+          <span class="bidi-safe" id="lblCustTransSize">الترجمة</span><span class="colon-sep">:</span>
+          <span class="slider-val-badge" id="valCustTransSize">0.98rem</span>
+        </div>
+        <input type="range" id="rngCustTransSize" min="0.80" max="1.55" step="0.03" value="0.98" oninput="updateLiveTextScale('trans', this.value)">
+      </div>
+    </div>
+
+    <div class="customizer-footer-actions">
+      <span style="font-size: 0.74rem; color: var(--text-secondary);" id="liveTextCustHint">اسحب البطاقة لمعاينة النصوص</span>
+      <button type="button" class="btn-customizer-reset" id="btnResetTextSizes" onclick="resetLiveTextSizes()">استعادة الافتراضي</button>
+    </div>
+  </div>
+
+  <!-- 4. شريط أدوات التخصيص الحي لأزرار الشاشة (Live In-Session Toolbar) -->
+  <div id="liveCustomizerToolbar" class="live-customizer-toolbar" style="display: none;">
+    <div class="customizer-toolbar-header">
+      <div class="customizer-title-row">
+        <span class="customizer-title" id="liveBtnCustTitle">⚙️ تخصيص الأزرار الحي</span>
+        <span class="customizer-step-badge" id="customizerStepBadge">التكبيرة 1 / 4</span>
+      </div>
+      <button type="button" class="btn-customizer-save" id="btnLiveCustomizerSave" onclick="saveAndExitLiveCustomizer()">
+        حفظ وخروج ✓
+      </button>
+    </div>
+    
+    <!-- نمط الأزرار -->
+    <div class="customizer-toolbar-section">
+      <div class="customizer-section-label">
+        <span class="bidi-safe" id="lblBtnStyleChoice">نمط ظهور الأزرار</span><span class="colon-sep">:</span>
+      </div>
+      <div class="pill-button-group customizer-pill-group">
+        <button type="button" id="liveBtnStyleSingle" class="pill-btn active" onclick="setLiveButtonLayout('single')">زر تقدم واحد</button>
+        <button type="button" id="liveBtnStyleDual" class="pill-btn" onclick="setLiveButtonLayout('dual')">زرين (سابق / تالي)</button>
+      </div>
+    </div>
+
+    <!-- مفتاح ربط الزرين معاً أو تحريك كل زر على حدة -->
+    <div class="customizer-toolbar-section" id="liveDualLockRow" style="display: none;">
+      <label class="customizer-toggle-label">
+        <input type="checkbox" id="chkLockDualButtons" checked onchange="toggleDualButtonsLock(this.checked)">
+        <span id="lblLockDualButtons">تحريك الزرين معاً ككتلة واحدة</span>
+      </label>
+    </div>
+
+    <!-- منزلقات فورية للحجم والشفافية -->
+    <div class="customizer-controls-grid">
+      <div class="customizer-control-col">
+        <label>
+          <span class="bidi-safe" id="lblBtnScale">الحجم</span><span class="colon-sep">:</span> <span id="scaleValLabel">1.0x</span>
+        </label>
+        <input type="range" id="customScaleSlider" min="0.6" max="1.5" step="0.05" value="1.0" oninput="updateLiveButtonScale(this.value)">
+      </div>
+      <div class="customizer-control-col">
+        <label>
+          <span class="bidi-safe" id="lblBtnOpacity">الشفافية</span><span class="colon-sep">:</span> <span id="opacityValLabel">90%</span>
+        </label>
+        <input type="range" id="customOpacitySlider" min="0.2" max="1.0" step="0.05" value="0.9" oninput="updateLiveButtonOpacity(this.value)">
+      </div>
+    </div>
+
+    <div class="customizer-footer-actions">
+      <label class="customizer-checkbox-label">
+        <input type="checkbox" id="chkPerStepPos" onchange="togglePerStepPositioning(this.checked)">
+        <span id="lblPerStepPos">تخصيص الموضع لكل تكبيرة على حدة</span>
+      </label>
+      <button type="button" class="btn-customizer-reset" id="btnResetBtnCust" onclick="resetLiveButtonCustomizer()">استعادة الافتراضي</button>
+    </div>
+  </div>
+
+  <!-- 2. الشاشة الافتتاحية السابقة لبدء الصلاة بأيقونة التطبيق الرسمية -->
+  <div id="startPrayerScreen" class="start-session-screen">
+    <div class="start-session-card">
+      <div class="prayer-emblem-app">
+        <img src="app-icon.png" alt="Janazah Guide Icon" class="official-app-badge" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'78\' height=\'78\' viewBox=\'0 0 78 78\'><rect width=\'78\' height=\'78\' rx=\'20\' fill=\'%230284c7\'/><text x=\'50%25\' y=\'52%25\' font-size=\'36\' text-anchor=\'middle\' fill=\'white\' dy=\'.3em\'>🕌</text></svg>';">
+      </div>
+      <h2 class="start-session-title" id="startScreenTitle">صلاة الجنازة</h2>
+      <p class="start-session-desc" id="startScreenDesc">
+        دليل تفاعلي متزامن خطوة بخطوة مع أربع تكبيرات، يدعم التبديل اللمسي والصوتي والحركي.
+      </p>
+      <button type="button" class="btn-start-prayer" onclick="startPrayerSession()">
+        <span>▶</span>
+        <span id="btnStartPrayerText">ابدأ صلاة الجنازة</span>
+      </button>
+      <button type="button" class="btn-qr-top" onclick="openQrModal()" style="margin-top:8px; padding:10px 20px; font-size:0.9rem;">
+        <span>📲</span>
+        <span id="startScreenShareText">شارك الأجر (رمز QR)</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- 3 & 4. حاوية التكبيرات التفاعلية والجلسة المباشرة -->
+  <div class="swipe-container" id="swipeContainer">
+    <!-- حاوية أزرار التقليب الحرة فوق الشاشة -->
+    <div class="on-screen-nav-controls" id="onScreenNavControls"></div>
+    <div class="swipe-track" id="swipeTrack"></div>
+  </div>
+  
+  <!-- الألواح والتبويبات الأساسية -->
+  <div id="extrasPanel" class="panel"></div>
+  <div id="settingsPanel" class="panel"></div>
+  <div id="languagePanel" class="panel"></div>
+  
+  <!-- 2. شريط التنقل السفلي بأيقونة الجامع الواضحة في تبويب الدليل -->
+  <div class="bottom-nav" id="bottomNav">
+    <div id="navGuide" class="nav-item active">
+      <div class="nav-icon">🕌</div>
+      <div class="nav-label" id="guideLabel">الدليل</div>
+    </div>
+    <div id="navExtras" class="nav-item"><div class="nav-icon">✨</div><div class="nav-label" id="extrasLabel">الإضافات</div></div>
+    <div id="navSettings" class="nav-item"><div class="nav-icon">⚙️</div><div class="nav-label" id="settingsLabel">الإعدادات</div></div>
+    <div id="navLanguage" class="nav-item"><div class="nav-icon">🌐</div><div class="nav-label" id="languageLabel">اللغة</div></div>
+  </div>
+</div>
+
+<!-- 5. الدائرة العائمة التفاعلية المصغرة للسبحة (Interactive Mini-Widget) -->
+<div id="tasbeehMiniFloatingWidget" class="tasbeeh-mini-widget" style="display: none;">
+  <button type="button" class="mini-widget-ctrl mini-widget-expand" onclick="expandTasbeehFromFloating()" title="تكبير">⤢</button>
+  <button type="button" class="mini-widget-tap-core" onclick="handleTasbeehClick()">
+    <span class="mini-bead-icon">📿</span>
+    <span class="mini-count-text" id="tasbeehMiniCount">0</span>
+    <span class="mini-dhikr-tag" id="tasbeehMiniDhikrLabel"></span>
+  </button>
+  <button type="button" class="mini-widget-ctrl mini-widget-close" onclick="closeMiniTasbeehWidget()" title="إغلاق">✕</button>
+</div>
+
+<!-- عناصر مخفية لدعم Picture-in-Picture (PiP) فوق تطبيقات الهاتف الأخرى -->
+<canvas id="tasbeehPipCanvas" width="320" height="320" style="display:none;"></canvas>
+<video id="tasbeehPipVideo" muted playsinline style="display:none;"></video>
+
+<!-- 5. السبحة الإلكترونية المبتكرة (الشاشة الكاملة + الأهداف المخصصة + قائمة أهدافي) -->
+<div id="tasbeehFullScreenModal" class="tasbeeh-fullscreen-view" style="display: none;">
+  <div class="tasbeeh-fs-header">
+    <div class="tasbeeh-header-actions-group">
+      <button type="button" class="tasbeeh-fs-action-btn" onclick="minimizeTasbeehToFloating()">
+        <span>🗗</span>
+        <span id="btnMinimizeTasbeehText">تصغير</span>
+      </button>
+      <button type="button" class="tasbeeh-fs-action-btn tasbeeh-pip-btn" id="btnTasbeehPip" onclick="toggleTasbeehPiP()" title="نافذة عائمة فوق التطبيقات">
+        <span>⧉</span>
+        <span id="btnPipTasbeehText">عائم خارجي</span>
+      </button>
+    </div>
+    <div class="tasbeeh-fs-title" id="tasbeehFsTitle">السبحة الإلكترونية</div>
+    <button type="button" class="tasbeeh-fs-action-btn" onclick="closeTasbeehFullScreen()">
+      <span>✕</span>
+      <span id="btnCloseTasbeehText">إغلاق</span>
+    </button>
+  </div>
+
+  <div class="tasbeeh-fs-body">
+    <!-- شريط عرض الذكر الحالي إن وُجد -->
+    <div class="tasbeeh-active-dhikr-banner" id="tasbeehActiveDhikrBanner" style="display: none;">
+      <span class="bidi-safe" id="tasbeehActiveDhikrName"></span><span class="colon-sep">:</span>
+      <span class="tasbeeh-active-goal-badge" id="tasbeehActiveGoalBadge"></span>
+    </div>
+
+    <!-- حلقة التسبيح الدائرية الكبيرة المتجاوبة -->
+    <div class="tasbeeh-core-area">
+      <div class="tasbeeh-ring-outer" id="tasbeehTouchRing" onclick="handleTasbeehClick()">
+        <svg class="tasbeeh-svg-ring" viewBox="0 0 220 220">
+          <circle class="tasbeeh-circle-bg" cx="110" cy="110" r="96"></circle>
+          <circle class="tasbeeh-circle-prog" id="tasbeehCircleProg" cx="110" cy="110" r="96"></circle>
+        </svg>
+        <div class="tasbeeh-center-content">
+          <div class="tasbeeh-counter-number" id="tasbeehCountDisplay">0</div>
+          <div class="tasbeeh-target-label" id="tasbeehTargetDisplay">الهدف حر ∞</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- رسالة إتمام الهدف بنجاح -->
+    <div class="tasbeeh-goal-success-banner" id="tasbeehGoalSuccessBanner" style="display: none;">
+      <span id="tasbeehGoalSuccessText">تم إنهاء الهدف بنجاح ✓</span>
+    </div>
+
+    <!-- تنبيه حفظ الأرقام التلقائي -->
+    <div class="tasbeeh-autosave-notice" id="tasbeehAutoSaveNotice">
+      💾 يقوم العداد بحفظ أرقام التسبيح والأهداف تلقائياً حتى عند إغلاق التطبيق
+    </div>
+
+    <!-- أدوات تحكم الأهداف (الوضع الحر / تحديد هدف مخصص) -->
+    <div class="tasbeeh-settings-box">
+      <div class="tasbeeh-mode-tabs">
+        <button type="button" class="pill-btn active" id="btnModeFreeTasbeeh" onclick="switchTasbeehMode('free')">الهدف الحر ∞</button>
+        <button type="button" class="pill-btn" id="btnModeCustomGoal" onclick="switchTasbeehMode('custom')">تحديد هدف 🎯</button>
+      </div>
+
+      <!-- نموذج تحديد هدف مخصص -->
+      <div id="customGoalFormBox" class="custom-goal-form" style="display: none;">
+        <div class="custom-goal-inputs-grid">
+          <input type="text" id="inputCustomDhikr" class="tasbeeh-text-input" placeholder="اكتب الذكر (مثل: سبحان الله)">
+          <input type="number" id="inputCustomTargetNum" class="tasbeeh-num-input" min="1" max="999999" placeholder="العدد (مثل: 110)">
+        </div>
+        <button type="button" class="btn-primary btn-apply-custom-goal" id="btnStartCustomGoal" onclick="applyCustomTasbeehGoal()">
+          بدء الهدف المخصص
+        </button>
+      </div>
+
+      <div class="tasbeeh-setting-row">
+        <span id="lblTasbeehHaptic">الاهتزاز اللمسي (Haptic)</span>
+        <label class="switch-label">
+          <input type="checkbox" id="chkTasbeehHaptic" checked onchange="toggleTasbeehHaptic(this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+
+      <div class="tasbeeh-setting-row">
+        <span id="lblTasbeehRingSize">حجم حلقة التسبيح</span>
+        <input type="range" min="150" max="250" value="200" oninput="adjustTasbeehRingSize(this.value)" style="accent-color: var(--accent);">
+      </div>
+
+      <button type="button" class="btn-tasbeeh-reset" id="btnResetTasbeeh" onclick="resetTasbeehCounter()">
+        ↺ تصفير العداد
+      </button>
+    </div>
+
+    <!-- 5. قائمة "أهدافي" المحفوظة أسفل شاشة السبحة -->
+    <div class="my-goals-section" id="myGoalsSection">
+      <div class="my-goals-header">
+        <span class="my-goals-title" id="myGoalsTitle">🏆 أهدافي</span>
+        <span class="my-goals-count-badge" id="myGoalsCountBadge">0</span>
+      </div>
+      <div class="my-goals-list" id="myGoalsListContainer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة مشاركة الأجر بصورة الـ QR -->
+<div id="qrPopup" class="popup-overlay">
+  <div class="popup-card">
+    <div class="qr-label" id="qrLabel" style="font-weight:700; margin-bottom:12px; font-size:1.1rem;">شارك الأجر</div>
+    <div style="background:#fff; border-radius:16px; padding:12px; display:inline-block; margin-bottom:12px;">
+      <img src="QR Code.png" alt="QR Code" style="width: 170px; height: 170px; border-radius: 12px; display:block;" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'170\' height=\'170\' viewBox=\'0 0 170 170\'><rect width=\'170\' height=\'170\' fill=\'%23f3f4f6\'/><text x=\'50%25\' y=\'50%25\' font-size=\'14\' text-anchor=\'middle\' fill=\'%234b5563\' dy=\'.3em\'>QR Code</text></svg>';" />
+    </div>
+    <p style="font-size:0.82rem; color:var(--text-secondary); margin-bottom:14px;" id="qrSubText">امسح الرمز لنشر تطبيق دليل الجنازة ونيل الأجر</p>
+    <button type="button" id="closeQrBtn" class="btn-secondary" onclick="closePopup('qrPopup')">إغلاق</button>
+  </div>
+</div>
+
+<!-- نافذة التلميحات والشرح (Hints Modal) -->
+<div id="hintModal" class="modal">
+  <div class="modal-card">
+    <div style="font-size:2rem; margin-bottom:6px;" id="hintModalIcon">ℹ️</div>
+    <h3 id="hintModalTitle" style="font-size:1.15rem; margin-bottom:8px;">طريقة التنقل</h3>
+    <div id="hintModalContent" class="hint-modal-text"></div>
+    <button type="button" onclick="closeHintModal()" class="btn-primary" style="margin-top:4px;" id="hintModalCloseBtn">فهمت ذلك</button>
+  </div>
+</div>
+
+<!-- 6. نافذة الـ 200 لون إضافي المنظمة بتدرجات راقية وشبكة تمرير عمودي -->
+<div id="customColorModal" class="modal">
+  <div class="modal-card custom-color-modal-card">
+    <div class="custom-color-modal-header">
+      <h3 id="modalTitle" class="btn-extra-colors-text" style="font-size:1.1rem; font-weight:800;">ألوان إضافية</h3>
+      <span class="custom-color-count" id="customColorCountBadge">200 لون</span>
+    </div>
+    <div class="color-palette color-palette-200" id="premiumColorPalette"></div>
+    <button type="button" onclick="closeModal()" class="btn-secondary" style="margin-top:14px;" id="closeColorModalBtn">إغلاق</button>
+  </div>
+</div>
+
+<!-- تحميل ملفات البيانات، شاشة البداية المستقلة، والمنطق البرمجي -->
+<script src="duas-data.js"></script>
+<script src="data.js"></script>
+<script src="splash.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>
