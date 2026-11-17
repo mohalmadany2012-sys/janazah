@@ -37,7 +37,7 @@
   </div>
 </div>
 
-<!-- 1. نافذة التحديث الزجاجية المترجمة بالكامل -->
+<!-- نافذة التحديث الزجاجية المترجمة بالكامل -->
 <div id="updateRequiredModal" class="modal" style="z-index: 55000;">
   <div class="modal-card update-glass-card">
     <div class="update-icon-circle">✨</div>
@@ -63,6 +63,12 @@
 
 <!-- تنبيه النظام العام -->
 <div id="navAlertToast" class="nav-alert-toast"></div>
+
+<!-- إشعار تأكيد الخروج من الصلاة (Exit Confirmation Toast) -->
+<div id="exitPrayerToast" class="exit-prayer-toast" style="display: none;">
+  <span class="exit-toast-msg" id="exitToastMsg">هل تريد الخروج من الصلاة؟</span>
+  <button type="button" class="btn-exit-toast-confirm" id="btnExitToastYes" onclick="confirmExitFromToast()">نعم</button>
+</div>
 
 <!-- شاشة التهيئة 1: اختيار اللغة -->
 <div id="langOnboardingModal" class="onboarding-overlay" style="display:none;">
@@ -107,47 +113,64 @@
       <div class="session-progress-wrapper">
         <div class="progress-strip" id="progressContainer"></div>
       </div>
-      <button type="button" class="btn-exit-session" onclick="exitPrayerSession(true)">
+      <button type="button" class="btn-exit-session" id="btnExitPrayerSession" onclick="exitPrayerSession(true)">
         <span>✕</span>
         <span id="exitSessionBtnText">إنهاء الصلاة</span>
       </button>
     </div>
   </div>
 
-  <!-- 3. شريط أدوات التخصيص الحي لأحجام النصوص (Live Text Size Customizer) -->
-  <div id="liveTextCustomizerToolbar" class="live-customizer-toolbar" style="display: none;">
+  <!-- لوحة التحكم العائمة القابلة للسحب لتخصيص الخطوط ونصوص الدليل (Unified Guide Text & Font Customizer) -->
+  <div id="liveTextCustomizerToolbar" class="live-customizer-toolbar floating-draggable-toolbar" style="display: none;">
+    <div class="customizer-drag-handle" id="textCustomizerDragHandle" title="اسحب لتحريك اللوحة">
+      <span class="drag-grip-pill">⋮⋮</span>
+    </div>
     <div class="customizer-toolbar-header">
       <div class="customizer-title-row">
-        <span class="customizer-title" id="liveTextCustTitle">🔠 تخصيص أحجام النصوص</span>
+        <span class="customizer-title" id="liveTextCustTitle">🔠 حجم الخط وتخصيص الدليل</span>
       </div>
       <button type="button" class="btn-customizer-save" id="btnLiveTextCustSave" onclick="saveAndExitTextCustomizer()">
         حفظ وخروج ✓
       </button>
     </div>
 
+    <!-- مفاتيح إظهار/إخفاء نصوص الدليل -->
+    <div class="text-display-toggle-group" id="liveTextVisibilityGroup" style="margin-top: 0; margin-bottom: 10px;">
+      <button type="button" id="btnToggleVisArabic" class="text-display-toggle-btn active" onclick="toggleGuideTextVisibility('arabic')">
+        ✓ النص العربي
+      </button>
+      <button type="button" id="btnToggleVisTranslit" class="text-display-toggle-btn active" onclick="toggleGuideTextVisibility('translit')">
+        ✓ النطق اللاتيني
+      </button>
+      <button type="button" id="btnToggleVisTrans" class="text-display-toggle-btn active" onclick="toggleGuideTextVisibility('translation')">
+        ✓ الترجمة
+      </button>
+    </div>
+
+    <!-- منزلقات متكافئة لتكبير وتصغير كل نص على حدة بحرية كاملة -->
     <div class="text-size-sliders-list">
-      <div class="text-size-slider-row">
+      <div class="text-size-slider-row" id="rowCustArabicSize">
         <div class="slider-label-line">
           <span class="bidi-safe" id="lblCustArabicSize">النص العربي</span><span class="colon-sep">:</span>
-          <span class="slider-val-badge" id="valCustArabicSize">1.55rem</span>
+          <span class="slider-val-badge" id="valCustArabicSize">1.95rem</span>
         </div>
-        <input type="range" id="rngCustArabicSize" min="1.15" max="2.65" step="0.05" value="1.55" oninput="updateLiveTextScale('arabic', this.value)">
+        <input type="range" id="rngCustArabicSize" min="0.80" max="2.65" step="0.05" value="1.95" oninput="updateLiveTextScale('arabic', this.value)">
       </div>
 
       <div class="text-size-slider-row" id="rowCustTranslitSize">
         <div class="slider-label-line">
           <span class="bidi-safe" id="lblCustTranslitSize">النطق اللاتيني</span><span class="colon-sep">:</span>
-          <span class="slider-val-badge" id="valCustTranslitSize">0.88rem</span>
+          <span class="slider-val-badge" id="valCustTranslitSize">1.15rem</span>
         </div>
-        <input type="range" id="rngCustTranslitSize" min="0.72" max="1.45" step="0.03" value="0.88" oninput="updateLiveTextScale('translit', this.value)">
+        <input type="range" id="rngCustTranslitSize" min="0.80" max="2.65" step="0.05" value="1.15" oninput="updateLiveTextScale('translit', this.value)">
       </div>
 
       <div class="text-size-slider-row" id="rowCustTransSize">
         <div class="slider-label-line">
           <span class="bidi-safe" id="lblCustTransSize">الترجمة</span><span class="colon-sep">:</span>
-          <span class="slider-val-badge" id="valCustTransSize">0.98rem</span>
+          <span class="slider-val-badge" id="valCustTransSize">1.45rem</span>
         </div>
-        <input type="range" id="rngCustTransSize" min="0.80" max="1.55" step="0.03" value="0.98" oninput="updateLiveTextScale('trans', this.value)">
+        <input type="range" id="rngCustTransSize" min="0.80" max="2.65" step="0.05" value="1.45" oninput="updateLiveTextScale('trans', this.value)">
       </div>
     </div>
 
@@ -157,8 +180,11 @@
     </div>
   </div>
 
-  <!-- 4. شريط أدوات التخصيص الحي لأزرار الشاشة (Live In-Session Toolbar) -->
-  <div id="liveCustomizerToolbar" class="live-customizer-toolbar" style="display: none;">
+  <!-- شريط أدوات التخصيص الحي لأزرار الشاشة (عائم وقابل للسحب باللمس في أي مكان) -->
+  <div id="liveCustomizerToolbar" class="live-customizer-toolbar floating-draggable-toolbar" style="display: none;">
+    <div class="customizer-drag-handle" id="btnCustomizerDragHandle" title="اسحب لتحريك الشريط">
+      <span class="drag-grip-pill">⋮⋮</span>
+    </div>
     <div class="customizer-toolbar-header">
       <div class="customizer-title-row">
         <span class="customizer-title" id="liveBtnCustTitle">⚙️ تخصيص الأزرار الحي</span>
@@ -213,7 +239,7 @@
     </div>
   </div>
 
-  <!-- 2. الشاشة الافتتاحية السابقة لبدء الصلاة بأيقونة التطبيق الرسمية -->
+  <!-- الشاشة الافتتاحية السابقة لبدء الصلاة بأيقونة التطبيق الرسمية -->
   <div id="startPrayerScreen" class="start-session-screen">
     <div class="start-session-card">
       <div class="prayer-emblem-app">
@@ -234,7 +260,7 @@
     </div>
   </div>
   
-  <!-- 3 & 4. حاوية التكبيرات التفاعلية والجلسة المباشرة -->
+  <!-- حاوية التكبيرات التفاعلية والجلسة المباشرة -->
   <div class="swipe-container" id="swipeContainer">
     <!-- حاوية أزرار التقليب الحرة فوق الشاشة -->
     <div class="on-screen-nav-controls" id="onScreenNavControls"></div>
@@ -246,7 +272,7 @@
   <div id="settingsPanel" class="panel"></div>
   <div id="languagePanel" class="panel"></div>
   
-  <!-- 2. شريط التنقل السفلي بأيقونة الجامع الواضحة في تبويب الدليل -->
+  <!-- شريط التنقل السفلي الثابت والمحصن ضد أزرار النظام -->
   <div class="bottom-nav" id="bottomNav">
     <div id="navGuide" class="nav-item active">
       <div class="nav-icon">🕌</div>
@@ -258,10 +284,14 @@
   </div>
 </div>
 
-<!-- 5. الدائرة العائمة التفاعلية المصغرة للسبحة (Interactive Mini-Widget) -->
+<!-- الدائرة العائمة التفاعلية المصغرة للسبحة (Interactive Mini-Widget) -->
 <div id="tasbeehMiniFloatingWidget" class="tasbeeh-mini-widget" style="display: none;">
   <button type="button" class="mini-widget-ctrl mini-widget-expand" onclick="expandTasbeehFromFloating()" title="تكبير">⤢</button>
   <button type="button" class="mini-widget-tap-core" onclick="handleTasbeehClick()">
+    <svg class="mini-widget-ring-svg" viewBox="0 0 100 100">
+      <circle class="mini-ring-bg" cx="50" cy="50" r="44"></circle>
+      <circle class="mini-ring-prog" id="miniWidgetRingProg" cx="50" cy="50" r="44"></circle>
+    </svg>
     <span class="mini-bead-icon">📿</span>
     <span class="mini-count-text" id="tasbeehMiniCount">0</span>
     <span class="mini-dhikr-tag" id="tasbeehMiniDhikrLabel"></span>
@@ -270,27 +300,33 @@
 </div>
 
 <!-- عناصر مخفية لدعم Picture-in-Picture (PiP) فوق تطبيقات الهاتف الأخرى -->
-<canvas id="tasbeehPipCanvas" width="320" height="320" style="display:none;"></canvas>
+<canvas id="tasbeehPipCanvas" width="360" height="360" style="display:none;"></canvas>
 <video id="tasbeehPipVideo" muted playsinline style="display:none;"></video>
 
-<!-- 5. السبحة الإلكترونية المبتكرة (الشاشة الكاملة + الأهداف المخصصة + قائمة أهدافي) -->
+<!-- السبحة الإلكترونية المبتكرة (الشاشة الكاملة + شبكة أزرار مرتبة + الأهداف المخصصة + قائمة أهدافي) -->
 <div id="tasbeehFullScreenModal" class="tasbeeh-fullscreen-view" style="display: none;">
   <div class="tasbeeh-fs-header">
-    <div class="tasbeeh-header-actions-group">
-      <button type="button" class="tasbeeh-fs-action-btn" onclick="minimizeTasbeehToFloating()">
+    <div class="tasbeeh-fs-title-bar">
+      <div class="tasbeeh-fs-title" id="tasbeehFsTitle">📿 السبحة الإلكترونية</div>
+    </div>
+    <div class="tasbeeh-controls-grid">
+      <button type="button" class="tasbeeh-grid-btn" onclick="closeTasbeehFullScreen()">
+        <span>❮</span>
+        <span id="btnBackTasbeehText">العودة</span>
+      </button>
+      <button type="button" class="tasbeeh-grid-btn" onclick="minimizeTasbeehToFloating()">
         <span>🗗</span>
         <span id="btnMinimizeTasbeehText">تصغير</span>
       </button>
-      <button type="button" class="tasbeeh-fs-action-btn tasbeeh-pip-btn" id="btnTasbeehPip" onclick="toggleTasbeehPiP()" title="نافذة عائمة فوق التطبيقات">
+      <button type="button" class="tasbeeh-grid-btn tasbeeh-pip-btn" id="btnTasbeehPip" onclick="toggleTasbeehPiP()">
         <span>⧉</span>
-        <span id="btnPipTasbeehText">عائم خارجي</span>
+        <span id="btnPipTasbeehText">عائم</span>
+      </button>
+      <button type="button" class="tasbeeh-grid-btn tasbeeh-reset-grid-btn" onclick="resetTasbeehCounter()">
+        <span>↺</span>
+        <span id="btnTopResetTasbeehText">تصفير</span>
       </button>
     </div>
-    <div class="tasbeeh-fs-title" id="tasbeehFsTitle">السبحة الإلكترونية</div>
-    <button type="button" class="tasbeeh-fs-action-btn" onclick="closeTasbeehFullScreen()">
-      <span>✕</span>
-      <span id="btnCloseTasbeehText">إغلاق</span>
-    </button>
   </div>
 
   <div class="tasbeeh-fs-body">
@@ -309,7 +345,7 @@
         </svg>
         <div class="tasbeeh-center-content">
           <div class="tasbeeh-counter-number" id="tasbeehCountDisplay">0</div>
-          <div class="tasbeeh-target-label" id="tasbeehTargetDisplay">الهدف حر ∞</div>
+          <div class="tasbeeh-target-label" id="tasbeehTargetDisplay">الوضع الحر ∞</div>
         </div>
       </div>
     </div>
@@ -324,11 +360,11 @@
       💾 يقوم العداد بحفظ أرقام التسبيح والأهداف تلقائياً حتى عند إغلاق التطبيق
     </div>
 
-    <!-- أدوات تحكم الأهداف (الوضع الحر / تحديد هدف مخصص) -->
+    <!-- أدوات تحكم الأهداف (الوضع الحر / هدف مخصص) -->
     <div class="tasbeeh-settings-box">
       <div class="tasbeeh-mode-tabs">
-        <button type="button" class="pill-btn active" id="btnModeFreeTasbeeh" onclick="switchTasbeehMode('free')">الهدف الحر ∞</button>
-        <button type="button" class="pill-btn" id="btnModeCustomGoal" onclick="switchTasbeehMode('custom')">تحديد هدف 🎯</button>
+        <button type="button" class="pill-btn active" id="btnModeFreeTasbeeh" onclick="switchTasbeehMode('free')">الوضع الحر ∞</button>
+        <button type="button" class="pill-btn" id="btnModeCustomGoal" onclick="switchTasbeehMode('custom')">هدف مخصص 🎯</button>
       </div>
 
       <!-- نموذج تحديد هدف مخصص -->
@@ -338,7 +374,7 @@
           <input type="number" id="inputCustomTargetNum" class="tasbeeh-num-input" min="1" max="999999" placeholder="العدد (مثل: 110)">
         </div>
         <button type="button" class="btn-primary btn-apply-custom-goal" id="btnStartCustomGoal" onclick="applyCustomTasbeehGoal()">
-          بدء الهدف المخصص
+          بدء الهدف
         </button>
       </div>
 
@@ -360,8 +396,8 @@
       </button>
     </div>
 
-    <!-- 5. قائمة "أهدافي" المحفوظة أسفل شاشة السبحة -->
-    <div class="my-goals-section" id="myGoalsSection">
+    <!-- قائمة "أهدافي" (تظهر فقط في وضع الهدف المخصص) -->
+    <div class="my-goals-section" id="myGoalsSection" style="display: none;">
       <div class="my-goals-header">
         <span class="my-goals-title" id="myGoalsTitle">🏆 أهدافي</span>
         <span class="my-goals-count-badge" id="myGoalsCountBadge">0</span>
@@ -393,7 +429,7 @@
   </div>
 </div>
 
-<!-- 6. نافذة الـ 200 لون إضافي المنظمة بتدرجات راقية وشبكة تمرير عمودي -->
+<!-- نافذة الـ 200 لون إضافي المنظمة بتدرجات راقية وشبكة تمرير عمودي -->
 <div id="customColorModal" class="modal">
   <div class="modal-card custom-color-modal-card">
     <div class="custom-color-modal-header">
@@ -406,7 +442,6 @@
 </div>
 
 <!-- تحميل ملفات البيانات، شاشة البداية المستقلة، والمنطق البرمجي -->
-<script src="duas-data.js"></script>
 <script src="data.js"></script>
 <script src="splash.js"></script>
 <script src="app.js"></script>
