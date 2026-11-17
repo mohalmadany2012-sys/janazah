@@ -390,6 +390,7 @@ body.light .btn-update-later {
   border-color: rgba(15, 23, 42, 0.15);
   color: #334155;
 }
+
 /* ==========================================================================
    4. الشاشة الافتتاحية بأيقونة التطبيق الرسمية
    ========================================================================== */
@@ -421,8 +422,10 @@ body.light .btn-update-later {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 14px 4px;
+  padding: calc(8px + env(safe-area-inset-top)) 14px 4px;
   gap: 12px;
+  position: relative;
+  z-index: 400;
 }
 
 .session-progress-wrapper {
@@ -494,7 +497,7 @@ body.light .btn-update-later {
   min-width: 100%;
   height: 100%;
   flex-shrink: 0;
-  padding: 4px 12px 6px;
+  padding: 4px 12px 90px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -506,7 +509,7 @@ body.light .btn-update-later {
   border: 1px solid var(--card-border);
   width: 100%;
   height: auto;
-  max-height: calc(100dvh - 122px);
+  max-height: calc(100dvh - 140px - env(safe-area-inset-bottom));
   overflow-y: auto;
   box-shadow: 0 14px 36px rgba(0,0,0,0.18);
   position: relative;
@@ -625,7 +628,7 @@ body.light .btn-update-later {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px 18px;
+  padding: 16px 18px 94px;
   flex: 1;
   text-align: center;
 }
@@ -677,7 +680,7 @@ body.light .btn-update-later {
 }
 
 /* ==========================================================================
-   6. التخصيص الحي لأزرار الشاشة وأحجام النصوص (Live Customizer Toolbars)
+   6. التخصيص الحي لأزرار الشاشة وأحجام النصوص (Floating Draggable Toolbars)
    ========================================================================== */
 .on-screen-nav-controls {
   display: none;
@@ -758,18 +761,50 @@ body.light .btn-update-later {
   white-space: nowrap;
 }
 
+/* شريط الأدوات العائم القابل للسحب بدون أي حجز لمسافة علوية */
 .live-customizer-toolbar {
-  position: sticky;
-  top: 6px;
-  z-index: 500;
-  margin: 4px 12px 6px;
+  position: fixed;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 560px;
+  z-index: 650;
   background: var(--surface-glass);
   border: 1.5px solid #38bdf8;
-  border-radius: 20px;
-  padding: 12px 14px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+  border-radius: 22px;
+  padding: 8px 14px 12px;
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+.customizer-drag-handle {
+  width: 100%;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  margin-bottom: 4px;
+}
+
+.customizer-drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-grip-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 6px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.45);
+  color: transparent;
+  font-size: 0;
 }
 
 .customizer-toolbar-header {
@@ -1082,56 +1117,76 @@ body.light .btn-update-later {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 14px 18px 28px;
+  padding: calc(12px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
 }
 
 .tasbeeh-fs-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 14px;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--card-border);
-  gap: 8px;
+  width: 100%;
+  max-width: 500px;
+  margin-inline: auto;
 }
 
-.tasbeeh-header-actions-group {
+.tasbeeh-fs-title-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  width: 100%;
 }
 
 .tasbeeh-fs-title {
-  font-size: 1.12rem;
+  font-size: 1.15rem;
   font-weight: 800;
   color: var(--text-primary);
   text-align: center;
   unicode-bidi: plaintext;
 }
 
-.tasbeeh-fs-action-btn {
-  background: rgba(128,128,128,0.12);
-  border: 1px solid var(--card-border);
-  color: var(--text-primary);
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: background 0.2s;
-  white-space: nowrap;
+.tasbeeh-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
 }
 
-.tasbeeh-fs-action-btn:hover {
-  background: rgba(128,128,128,0.22);
+.tasbeeh-grid-btn {
+  background: rgba(128, 128, 128, 0.12);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+  padding: 8px 4px;
+  border-radius: 14px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background 0.2s, transform 0.12s;
+}
+
+.tasbeeh-grid-btn:active {
+  transform: scale(0.95);
 }
 
 .tasbeeh-pip-btn {
-  border-color: rgba(var(--accent-rgb), 0.35);
+  border-color: rgba(var(--accent-rgb), 0.4);
   color: var(--accent);
+}
+
+.tasbeeh-reset-grid-btn {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
 }
 
 .tasbeeh-fs-body {
@@ -1409,11 +1464,21 @@ body.light .btn-update-later {
   gap: 8px;
 }
 
+.my-goal-item.active-goal-row {
+  border-color: rgba(var(--accent-rgb), 0.55);
+  background: rgba(var(--accent-rgb), 0.1);
+}
+
+.my-goal-item.completed-goal-row {
+  border-color: rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.08);
+}
+
 .my-goal-info {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 3px;
   font-size: 0.86rem;
   font-weight: 700;
   color: var(--text-primary);
@@ -1423,6 +1488,24 @@ body.light .btn-update-later {
 .my-goal-target-num {
   color: var(--accent);
   font-weight: 800;
+}
+
+.goal-status-badge {
+  font-size: 0.7rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+  margin-inline-start: 4px;
+}
+
+.goal-status-badge.in-progress {
+  background: rgba(var(--accent-rgb), 0.18);
+  color: var(--accent);
+}
+
+.goal-status-badge.completed {
+  background: rgba(16, 185, 129, 0.18);
+  color: #10b981;
 }
 
 .my-goal-actions {
@@ -1465,28 +1548,33 @@ body.light .btn-update-later {
 /* الدائرة العائمة المصغرة التفاعلية (Interactive Mini-Widget) */
 .tasbeeh-mini-widget {
   position: fixed;
-  bottom: 84px;
+  bottom: calc(88px + env(safe-area-inset-bottom));
   right: 16px;
   z-index: 12000;
-  width: 92px;
-  height: 92px;
+  width: 98px;
+  height: 98px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, var(--accent), rgba(var(--accent-rgb), 0.82));
-  border: 2.5px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(var(--accent-rgb), 0.45);
+  background: radial-gradient(circle at 30% 30%, #0f172a, #070a0f);
+  border: 2px solid rgba(var(--accent-rgb), 0.75);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(var(--accent-rgb), 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
   user-select: none;
 }
 
+body.light .tasbeeh-mini-widget {
+  background: radial-gradient(circle at 30% 30%, #ffffff, #f1f5f9);
+}
+
 .mini-widget-tap-core {
+  position: relative;
   width: 100%;
   height: 100%;
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: #ffffff;
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1500,15 +1588,41 @@ body.light .btn-update-later {
   transform: scale(0.91);
 }
 
+.mini-widget-ring-svg {
+  position: absolute;
+  inset: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.mini-ring-bg {
+  fill: none;
+  stroke: rgba(148, 163, 184, 0.22);
+  stroke-width: 6;
+}
+
+.mini-ring-prog {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 276.46;
+  stroke-dashoffset: 276.46;
+  transition: stroke-dashoffset 0.15s ease;
+}
+
 .mini-bead-icon {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   line-height: 1;
 }
 
 .mini-count-text {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: 1.15;
+  color: var(--text-primary);
 }
 
 .mini-dhikr-tag {
@@ -1517,7 +1631,8 @@ body.light .btn-update-later {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  opacity: 0.9;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .mini-widget-ctrl {
@@ -1581,21 +1696,25 @@ body.light .btn-update-later {
 }
 
 /* ==========================================================================
-   10. شريط التنقل السفلي والتبويبات
+   10. شريط التنقل السفلي الثابت والمحصن ضد أزرار النظام والتبويبات
    ========================================================================== */
 .bottom-nav {
+  position: fixed;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 28px);
+  max-width: 572px;
+  z-index: 900;
   background: rgba(var(--accent-rgb), 0.22);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 60px;
-  margin: 4px 14px 12px;
   padding: 6px 8px;
   display: flex;
   justify-content: space-around;
-  position: sticky;
-  bottom: 8px;
-  z-index: 200;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
 }
 
 .nav-item {
@@ -1621,7 +1740,12 @@ body.light .btn-update-later {
 .nav-item .nav-icon { font-size: 1.18rem; line-height: 1; }
 .nav-item .nav-label { font-size: var(--ui-nav-size); font-weight: 600; color: var(--text-primary); width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.panel { display: none; padding: 14px 16px 20px; flex: 1; overflow-y: auto; }
+.panel {
+  display: none;
+  padding: calc(14px + env(safe-area-inset-top)) 16px 90px;
+  flex: 1;
+  overflow-y: auto;
+}
 .panel.active { display: block; }
 
 .setting-group { 
@@ -1777,28 +1901,6 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 /* ==========================================================================
    قوائم قسم الإضافات
    ========================================================================== */
-.extras-nav-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--card-border);
-}
-
-.extras-back-btn {
-  background: rgba(var(--accent-rgb), 0.15);
-  border: 1px solid rgba(var(--accent-rgb), 0.3);
-  color: var(--text-primary);
-  padding: 6px 14px;
-  border-radius: 30px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.extras-view-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); flex: 1; unicode-bidi: plaintext; }
-
 .extras-menu-card {
   background: var(--surface-glass);
   border: 1px solid var(--card-border);
@@ -1823,26 +1925,7 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 .extras-item-title { font-size: 0.98rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; unicode-bidi: plaintext; }
 .extras-item-sub { font-size: 0.78rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; unicode-bidi: plaintext; }
 
-.dua-entry-card {
-  background: var(--surface-glass);
-  border: 1px solid var(--card-border);
-  border-radius: 20px;
-  padding: 16px;
-  margin-bottom: 14px;
-}
-
-.dua-entry-title { font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; unicode-bidi: plaintext; }
-.dua-entry-arabic {
-  direction: rtl; text-align: right;
-  font-family: 'Amiri', 'Noto Sans Arabic', serif;
-  font-size: var(--dua-arabic-size);
-  line-height: 2.1; padding: 12px 14px;
-  background: rgba(var(--accent-rgb), 0.08);
-  border-radius: 14px; margin-bottom: 8px;
-}
-.dua-entry-meaning { font-size: var(--dua-translit-size); color: var(--text-secondary); line-height: 1.6; unicode-bidi: plaintext; }
-
-/* النوافذ العائمة (Modals) */
+/* النوافذ العائمة (Modals) والتنبيهات */
 .modal, .popup-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.82); backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1892,9 +1975,9 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 
 .completion-banner {
   position: fixed;
-  top: 24px;
+  top: calc(20px + env(safe-area-inset-top));
   left: 50%;
-  transform: translateX(-50%) translateY(-100px);
+  transform: translateX(-50%) translateY(-120px);
   background: #10b981;
   color: #ffffff;
   padding: 14px 26px;
@@ -1912,4 +1995,88 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 
 .completion-banner.show {
   transform: translateX(-50%) translateY(0);
+}
+
+.nav-alert-toast {
+  position: fixed;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: rgba(15, 23, 42, 0.96);
+  color: #f8fafc;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  padding: 11px 20px;
+  border-radius: 30px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  z-index: 26000;
+  opacity: 0;
+  pointer-events: none;
+  text-align: center;
+  max-width: 90%;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  unicode-bidi: plaintext;
+}
+
+.nav-alert-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* إشعار تأكيد الخروج من الصلاة (Exit Confirmation Toast) */
+.exit-prayer-toast {
+  position: fixed;
+  bottom: calc(86px + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 27000;
+  background: rgba(15, 23, 42, 0.97);
+  color: #f8fafc;
+  border: 1.5px solid rgba(239, 68, 68, 0.55);
+  border-radius: 50px;
+  padding: 9px 14px 9px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  max-width: calc(100% - 32px);
+  animation: exitToastSlideUp 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+body.light .exit-prayer-toast {
+  background: rgba(255, 255, 255, 0.98);
+  color: #0f172a;
+}
+
+@keyframes exitToastSlideUp {
+  0% { opacity: 0; transform: translate(-50%, 18px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.exit-toast-msg {
+  font-size: 0.86rem;
+  font-weight: 700;
+  unicode-bidi: plaintext;
+}
+
+.btn-exit-toast-confirm {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+.btn-exit-toast-confirm:active {
+  transform: scale(0.94);
 }
