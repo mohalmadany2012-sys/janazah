@@ -39,12 +39,12 @@ let userAccent = localStorage.getItem("userAccent") || "#0284C7";
 let currentThemeMode = localStorage.getItem("themeMode") || "auto";
 let currentFont = localStorage.getItem("userFontSize") || "medium";
 
-// أحجام النصوص المخصصة لكل عنصر على حدة
+// أحجام النصوص المخصصة لكل عنصر على حدة (القيم الافتراضية المبدئية المتدرجة)
 let customTextScales = JSON.parse(localStorage.getItem("customTextScales")) || {
   active: false,
-  arabic: 1.55,
-  translit: 0.88,
-  trans: 0.98
+  arabic: 1.95,
+  translit: 1.15,
+  trans: 1.45
 };
 
 // خيارات إظهار نصوص الدليل
@@ -57,13 +57,13 @@ let textVisibility = {
 // إعدادات التنقل ومواضع الأزرار
 const DEFAULT_BTN_POS = {
   x: 75,
-  y: 78,
+  y: 74,
   scale: 1.0,
   opacity: 0.9,
   prevX: 28,
-  prevY: 78,
+  prevY: 74,
   nextX: 72,
-  nextY: 78
+  nextY: 74
 };
 
 function normalizePosObj(obj) {
@@ -107,12 +107,18 @@ let navConfig = {
 let isLiveCustomizing = false;
 let isLiveTextCustomizing = false;
 
-// حالة جلسة الصلاة والمستشعرات
+// حالة جلسة الصلاة، Wake Lock، والحماية من الخروج الخاطئ
 let isPrayerActive = false;
+let screenWakeLock = null;
+let exitConfirmPending = false;
+let exitConfirmTimer = null;
+let pendingTabAfterExit = null;
+
+// مستشعر الاهتزاز
 let speechRecognizer = null;
 let lastShakeTime = 0;
 let shakeSensorBound = false;
-let shakeMotionThreshold = parseInt(localStorage.getItem("nav_shakeThreshold")) || 12;
+let shakeMotionThreshold = Math.max(11, Math.min(25, parseInt(localStorage.getItem("nav_shakeThreshold"), 10) || 13));
 let shakeCoolDownActive = false;
 let isTouchingScreen = false;
 
@@ -125,17 +131,16 @@ let extraSwipeCount = 0;
 let lastVoiceCommandTime = 0;
 const VOICE_DEBOUNCE_DELAY = 1500;
 
-// مستويات قسم الإضافات والسبحة الإلكترونية المبتكرة
-let extrasLevel = 1;
-let selectedCategory = null;
-let tasbeehCount = parseInt(localStorage.getItem("tasbeeh_count")) || 0;
-let tasbeehTarget = parseInt(localStorage.getItem("tasbeeh_target")) || 0; // 0 = حر افتراضياً
+// السبحة الإلكترونية المبتكرة وقائمة أهدافي
+let tasbeehCount = parseInt(localStorage.getItem("tasbeeh_count"), 10) || 0;
+let tasbeehTarget = parseInt(localStorage.getItem("tasbeeh_target"), 10) || 0;
 let tasbeehMode = localStorage.getItem("tasbeeh_mode") || (tasbeehTarget > 0 ? "custom" : "free");
 let tasbeehActiveDhikr = localStorage.getItem("tasbeeh_active_dhikr") || "";
+let tasbeehActiveGoalId = localStorage.getItem("tasbeeh_active_goal_id") || null;
 let tasbeehMyGoals = JSON.parse(localStorage.getItem("tasbeeh_my_goals")) || [];
 let tasbeehGoalCompletedFlag = false;
 let tasbeehHaptic = localStorage.getItem("tasbeeh_haptic") !== "false";
-let tasbeehRingSize = parseInt(localStorage.getItem("tasbeeh_ring_size")) || 200;
+let tasbeehRingSize = parseInt(localStorage.getItem("tasbeeh_ring_size"), 10) || 200;
 let isPipActive = false;
 
 /* ==========================================================================
@@ -191,13 +196,12 @@ function setThemeMode(mode, save = true) {
 function applyFontScale() {
   document.documentElement.setAttribute("data-font", currentFont);
 
-  // إذا لم يكن المستخدم قد خصص أحجاماً يدوية، نحدث القيم من الدرجة المختارة
   if (!customTextScales.active) {
     const presetMap = {
-      small: { arabic: 1.25, translit: 0.78, trans: 0.85 },
-      medium: { arabic: 1.55, translit: 0.88, trans: 0.98 },
-      large: { arabic: 1.95, translit: 1.05, trans: 1.15 },
-      huge: { arabic: 2.45, translit: 1.2, trans: 1.3 }
+      small: { arabic: 1.25, translit: 0.85, trans: 0.90 },
+      medium: { arabic: 1.55, translit: 0.95, trans: 1.05 },
+      large: { arabic: 1.95, translit: 1.15, trans: 1.45 },
+      huge: { arabic: 2.45, translit: 1.35, trans: 1.65 }
     };
     const p = presetMap[currentFont] || presetMap.medium;
     customTextScales.arabic = p.arabic;
@@ -246,7 +250,48 @@ function updateDirection() {
 }
 
 /* ==========================================================================
-   2. إلزامية وسيلة تقليب واحدة على الأقل
+   2. منع قفل الشاشة (Screen Wake Lock) والاهتزاز التفاعلي المباشر
+   ========================================================================== */
+async function requestPrayerWakeLock() {
+  if ("wakeLock" in navigator) {
+    try {
+      screenWakeLock = await navigator.wakeLock.request("screen");
+      screenWakeLock.addEventListener("release", () => {
+        screenWakeLock = null;
+      });
+    } catch (err) {
+      console.log("WakeLock notice:", err);
+    }
+  }
+}
+
+async function releasePrayerWakeLock() {
+  if (screenWakeLock !== null) {
+    try {
+      await screenWakeLock.release();
+      screenWakeLock = null;
+    } catch (err) {
+      console.log("WakeLock release notice:", err);
+    }
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && isPrayerActive) {
+    requestPrayerWakeLock();
+  }
+});
+
+function triggerPrayerVibration(pattern) {
+  if ("vibrate" in navigator) {
+    try {
+      navigator.vibrate(pattern);
+    } catch (e) {}
+  }
+}
+
+/* ==========================================================================
+   3. إلزامية وسيلة تقليب واحدة على الأقل
    ========================================================================== */
 function showToastAlert(msg) {
   const toast = document.getElementById("navAlertToast");
@@ -298,7 +343,7 @@ function toggleNavOption(key, checked) {
 }
 
 /* ==========================================================================
-   3. بناء بطاقات الدليل وإدارة ظهور النصوص وأحجامها الحية
+   4. بناء بطاقات الدليل وإدارة ظهور النصوص وأحجامها الحية (الموحدة)
    ========================================================================== */
 function buildSlides() {
   const track = document.getElementById("swipeTrack");
@@ -365,6 +410,11 @@ function goToStep(newStep) {
   if (newStep < 0 || newStep >= stepsData.length) return;
   currentStep = newStep;
   extraSwipeCount = 0;
+
+  if (isPrayerActive && !isLiveCustomizing && !isLiveTextCustomizing) {
+    triggerPrayerVibration(35);
+  }
+
   updateTrackPosition();
   updateProgressBar();
   renderOnScreenControls();
@@ -375,32 +425,72 @@ function goToStep(newStep) {
   }
 }
 
-/* التخصيص الحي لأحجام النصوص (Live Text Size Customizer) */
-function openLiveTextSizeCustomizer() {
+/* نافذة التخصيص الموحدة للخطوط ونصوص الدليل في اللغات غير العربية */
+function openUnifiedGuideTextCustomizer() {
   if (isLiveCustomizing) {
     isLiveCustomizing = false;
     document.getElementById("liveCustomizerToolbar").style.display = "none";
   }
 
+  // ضبط القيم الافتراضية المبدئية عند الفتح إذا لم يسبق تخصيصها يدوياً
+  if (!customTextScales.active) {
+    customTextScales.arabic = 1.95;   // العربي كبير
+    customTextScales.translit = 1.15; // اللاتيني في المنتصف
+    customTextScales.trans = 1.45;    // الترجمة متوسطة كبيرة
+    applyCustomTextVariables();
+  }
+
   switchTab("guide");
   if (!isPrayerActive) {
-    startPrayerSession();
+    startPrayerSession(true);
   }
 
   isLiveTextCustomizing = true;
   const toolbar = document.getElementById("liveTextCustomizerToolbar");
-  if (toolbar) toolbar.style.display = "block";
+  if (toolbar) {
+    toolbar.style.display = "block";
+    toolbar.style.top = "56px";
+    toolbar.style.left = "50%";
+    toolbar.style.transform = "translateX(-50%)";
+  }
 
-  const isArabic = currentLang === "العربية";
-  const rowTranslit = document.getElementById("rowCustTranslitSize");
-  const rowTrans = document.getElementById("rowCustTransSize");
-  if (rowTranslit) rowTranslit.style.display = isArabic ? "none" : "flex";
-  if (rowTrans) rowTrans.style.display = isArabic ? "none" : "flex";
-
-  syncTextCustomizerSliders();
+  syncTextCustomizerControls();
 }
 
-function syncTextCustomizerSliders() {
+function toggleGuideTextVisibility(key) {
+  const nextVal = !textVisibility[key];
+  if (!nextVal) {
+    const visibleCount = ["arabic", "translit", "translation"].filter(k => textVisibility[k]).length;
+    if (visibleCount <= 1 && textVisibility[key]) {
+      showToastAlert(t("mustKeepOneTextAlert", "يجب إبقاء لغة واحدة على الأقل ظاهرة لضمان عمل الدليل"));
+      return;
+    }
+  }
+
+  textVisibility[key] = nextVal;
+  localStorage.setItem(`vis_${key}`, nextVal);
+  buildSlides();
+  syncTextCustomizerControls();
+}
+
+function syncTextCustomizerControls() {
+  const btnAr = document.getElementById("btnToggleVisArabic");
+  const btnTrl = document.getElementById("btnToggleVisTranslit");
+  const btnTrn = document.getElementById("btnToggleVisTrans");
+
+  if (btnAr) {
+    btnAr.classList.toggle("active", textVisibility.arabic);
+    btnAr.innerText = `${textVisibility.arabic ? "✓ " : ""}${t("arabicScript", "النص العربي")}`;
+  }
+  if (btnTrl) {
+    btnTrl.classList.toggle("active", textVisibility.translit);
+    btnTrl.innerText = `${textVisibility.translit ? "✓ " : ""}${t("translitScript", "النطق اللاتيني")}`;
+  }
+  if (btnTrn) {
+    btnTrn.classList.toggle("active", textVisibility.translation);
+    btnTrn.innerText = `${textVisibility.translation ? "✓ " : ""}${t("meaningTrans", "الترجمة")}`;
+  }
+
   const rngAr = document.getElementById("rngCustArabicSize");
   const rngTrl = document.getElementById("rngCustTranslitSize");
   const rngTrn = document.getElementById("rngCustTransSize");
@@ -426,19 +516,29 @@ function updateLiveTextScale(type, val) {
   if (type === "trans") customTextScales.trans = num;
 
   applyCustomTextVariables();
-  syncTextCustomizerSliders();
+  syncTextCustomizerControls();
 }
 
 function resetLiveTextSizes() {
   customTextScales = {
     active: false,
-    arabic: 1.55,
-    translit: 0.88,
-    trans: 0.98
+    arabic: 1.95,
+    translit: 1.15,
+    trans: 1.45
+  };
+  textVisibility = {
+    arabic: true,
+    translit: true,
+    translation: true
   };
   localStorage.removeItem("customTextScales");
-  applyFontScale();
-  syncTextCustomizerSliders();
+  localStorage.setItem("vis_arabic", "true");
+  localStorage.setItem("vis_translit", "true");
+  localStorage.setItem("vis_translation", "true");
+
+  applyCustomTextVariables();
+  buildSlides();
+  syncTextCustomizerControls();
 }
 
 function saveAndExitTextCustomizer() {
@@ -447,12 +547,12 @@ function saveAndExitTextCustomizer() {
   if (toolbar) toolbar.style.display = "none";
 
   localStorage.setItem("customTextScales", JSON.stringify(customTextScales));
-  exitPrayerSession(false);
+  exitPrayerSession(false, true);
   switchTab("settings");
 }
 
 /* ==========================================================================
-   4. عزل مستشعر الحركة والتعرف الصوتي والتقليب باللمس
+   5. مستشعر الحركة (Shake) والتعرف الصوتي والتقليب باللمس (RTL & LTR)
    ========================================================================== */
 function handleDeviceMotion(event) {
   if (!isPrayerActive || !navConfig.shake || isLiveCustomizing || isLiveTextCustomizing) return;
@@ -464,14 +564,19 @@ function handleDeviceMotion(event) {
   const acc = event.accelerationIncludingGravity || event.acceleration;
   if (!acc) return;
 
-  const delta = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+  const x = acc.x || 0;
+  const y = acc.y || 0;
+  const z = acc.z || 0;
 
-  if (delta > shakeMotionThreshold) {
+  // التقاط أي حركة اهتزاز عامة للهاتف في أي اتجاه
+  const magnitude = Math.sqrt(x * x + y * y + z * z);
+
+  if (magnitude > shakeMotionThreshold) {
     lastShakeTime = current;
     if (currentStep < 3) {
       goToStep(currentStep + 1);
     } else if (navConfig.autoEndTasleem) {
-      exitPrayerSession(true);
+      exitPrayerSession(true, true);
     }
   }
 }
@@ -539,7 +644,7 @@ function startVoiceRecognition() {
             transcript.includes("ورحمة الله")
           ) {
             lastVoiceCommandTime = currentTime;
-            exitPrayerSession(true);
+            exitPrayerSession(true, true);
             break;
           }
         }
@@ -580,18 +685,25 @@ function handleTouchStart(e) {
   swipeStartY = e.touches[0].clientY;
 }
 
+function handleTouchMove() {
+  isTouchingScreen = true;
+}
+
 function handleTouchEnd(e) {
   setTimeout(() => {
     isTouchingScreen = false;
-  }, 150);
+  }, 180);
   if (!navConfig.swipe || !isPrayerActive || swipeStartX === null || isLiveCustomizing) return;
 
   const diffX = e.changedTouches[0].clientX - swipeStartX;
   const diffY = e.changedTouches[0].clientY - swipeStartY;
 
   if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
-    const isForward = diffX < 0;
-    const isBackward = diffX > 0;
+    const isRtl = document.documentElement.getAttribute("dir") === "rtl";
+    // في وضع العربية (RTL): السحب من اليسار لليمين (diffX > 0) يتقدم، ومن اليمين لليسار (diffX < 0) يرجع
+    // في اللغات الأجنبية (LTR): السحب من اليمين لليسار (diffX < 0) يتقدم، ومن اليسار لليمين (diffX > 0) يرجع
+    const isForward = isRtl ? diffX > 0 : diffX < 0;
+    const isBackward = isRtl ? diffX < 0 : diffX > 0;
 
     if (isForward) {
       if (currentStep < 3) {
@@ -599,7 +711,7 @@ function handleTouchEnd(e) {
       } else {
         extraSwipeCount++;
         if (extraSwipeCount >= 1 && !isLiveTextCustomizing) {
-          exitPrayerSession(true);
+          exitPrayerSession(true, true);
         }
       }
     } else if (isBackward) {
@@ -613,15 +725,59 @@ function handleTouchEnd(e) {
 }
 
 /* ==========================================================================
-   5. التخصيص الحي لأزرار الشاشة (إصلاح القفل والانتقال الفوري وحدود الحركة)
+   6. سحب الأشرطة العائمة والتخصيص الحي لأزرار الشاشة ضمن منطقة الأمان
    ========================================================================== */
+function initFloatingToolbarDrag(toolbarEl, handleEl) {
+  if (!toolbarEl || !handleEl) return;
+  let dragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  handleEl.onpointerdown = e => {
+    e.stopPropagation();
+    dragging = true;
+    const rect = toolbarEl.getBoundingClientRect();
+    toolbarEl.style.transform = "none";
+    toolbarEl.style.left = `${rect.left}px`;
+    toolbarEl.style.top = `${rect.top}px`;
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    handleEl.setPointerCapture(e.pointerId);
+  };
+
+  handleEl.onpointermove = e => {
+    if (!dragging) return;
+    e.preventDefault();
+    const vw = window.innerWidth || document.documentElement.clientWidth;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    const rect = toolbarEl.getBoundingClientRect();
+
+    let nextLeft = e.clientX - offsetX;
+    let nextTop = e.clientY - offsetY;
+
+    nextLeft = Math.max(8, Math.min(vw - rect.width - 8, nextLeft));
+    nextTop = Math.max(8, Math.min(vh - rect.height - 8, nextTop));
+
+    toolbarEl.style.left = `${nextLeft}px`;
+    toolbarEl.style.top = `${nextTop}px`;
+  };
+
+  handleEl.onpointerup = e => {
+    if (dragging) {
+      dragging = false;
+      try {
+        handleEl.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+  };
+}
+
 function openLiveCustomizer() {
   if (isLiveTextCustomizing) {
     isLiveTextCustomizing = false;
     document.getElementById("liveTextCustomizerToolbar").style.display = "none";
   }
 
-  // تأكيد تفعيل الأزرار والانتقال الفوري إلى شاشة الدليل الحقيقية
   if (!navConfig.buttons) {
     navConfig.buttons = true;
     localStorage.setItem("nav_buttons", "true");
@@ -629,11 +785,17 @@ function openLiveCustomizer() {
 
   switchTab("guide");
   if (!isPrayerActive) {
-    startPrayerSession();
+    startPrayerSession(true);
   }
 
   isLiveCustomizing = true;
-  document.getElementById("liveCustomizerToolbar").style.display = "block";
+  const toolbar = document.getElementById("liveCustomizerToolbar");
+  if (toolbar) {
+    toolbar.style.display = "block";
+    toolbar.style.top = "56px";
+    toolbar.style.left = "50%";
+    toolbar.style.transform = "translateX(-50%)";
+  }
   document.getElementById("chkPerStepPos").checked = navConfig.isPerStepPosActive;
 
   const lockChk = document.getElementById("chkLockDualButtons");
@@ -690,15 +852,13 @@ function setLiveButtonLayout(layout) {
 function toggleDualButtonsLock(checked) {
   const cfg = getActiveButtonConfig();
   if (!checked && navConfig.lockDualButtons) {
-    // عند فك القفل لأول مرة، نفصل إحداثيات الزرين حول المركز الحالي لئلا يقفزا بعيداً
-    cfg.prevX = Math.max(10, Math.min(90, (cfg.x || 50) - 14));
-    cfg.prevY = cfg.y || 78;
-    cfg.nextX = Math.max(10, Math.min(90, (cfg.x || 50) + 14));
-    cfg.nextY = cfg.y || 78;
+    cfg.prevX = Math.max(12, Math.min(88, (cfg.x || 50) - 14));
+    cfg.prevY = cfg.y || 74;
+    cfg.nextX = Math.max(12, Math.min(88, (cfg.x || 50) + 14));
+    cfg.nextY = cfg.y || 74;
   } else if (checked && !navConfig.lockDualButtons) {
-    // عند إعادة القفل، نجمع الزرين في منتصف المسافة بينهما
     cfg.x = Math.round(((cfg.prevX || 30) + (cfg.nextX || 70)) / 2);
-    cfg.y = Math.round(((cfg.prevY || 78) + (cfg.nextY || 78)) / 2);
+    cfg.y = Math.round(((cfg.prevY || 74) + (cfg.nextY || 74)) / 2);
   }
 
   navConfig.lockDualButtons = checked;
@@ -721,7 +881,7 @@ function saveAndExitLiveCustomizer() {
   localStorage.setItem("nav_isPerStepPosActive", navConfig.isPerStepPosActive);
   localStorage.setItem("nav_lockDualButtons", navConfig.lockDualButtons);
 
-  exitPrayerSession(false);
+  exitPrayerSession(false, true);
   switchTab("settings");
 }
 
@@ -787,7 +947,6 @@ function updateLiveButtonOpacity(val) {
   renderOnScreenControls();
 }
 
-/* عرض أزرار الشاشة (مع دعم التحريك المنفصل عند فك القفل في المعاينة وأثناء الصلاة) */
 function renderOnScreenControls() {
   const container = document.getElementById("onScreenNavControls");
   if (!container) return;
@@ -827,7 +986,7 @@ function renderOnScreenControls() {
       finishBtn.innerHTML = `<span>✓ ${t("exitPrayer", "إنهاء الصلاة")}</span>`;
       finishBtn.onclick = e => {
         e.stopPropagation();
-        if (!isLiveCustomizing) exitPrayerSession(true);
+        if (!isLiveCustomizing) exitPrayerSession(true, true);
       };
       btnWrapper.appendChild(finishBtn);
     }
@@ -840,7 +999,6 @@ function renderOnScreenControls() {
     }
     container.appendChild(btnWrapper);
   } else {
-    // نمط الزرين (dual): إذا كان القفل مفعلاً يتحركان ككتلة واحدة، وإذا فُك القفل يستقل كل زر بموضعه
     if (navConfig.lockDualButtons) {
       const dualWrapper = document.createElement("div");
       dualWrapper.className = `draggable-live-btn-wrapper ${isLiveCustomizing ? "customizing" : ""}`;
@@ -871,7 +1029,7 @@ function renderOnScreenControls() {
         nextBtn.style.background = "#10b981";
         nextBtn.onclick = e => {
           e.stopPropagation();
-          if (!isLiveCustomizing) exitPrayerSession(true);
+          if (!isLiveCustomizing) exitPrayerSession(true, true);
         };
       }
 
@@ -886,7 +1044,6 @@ function renderOnScreenControls() {
       }
       container.appendChild(dualWrapper);
     } else {
-      // القفل مفتوح: كل زر في عنصر مستقل تماماً بسحبه وإحداثياته الخاصة
       const prevWrapper = document.createElement("div");
       prevWrapper.className = `draggable-live-btn-wrapper draggable-sub-btn ${isLiveCustomizing ? "customizing" : ""}`;
       prevWrapper.style.left = `${cfg.prevX}%`;
@@ -932,7 +1089,7 @@ function renderOnScreenControls() {
         nextBtn.style.background = "#10b981";
         nextBtn.onclick = e => {
           e.stopPropagation();
-          if (!isLiveCustomizing) exitPrayerSession(true);
+          if (!isLiveCustomizing) exitPrayerSession(true, true);
         };
       }
       nextWrapper.appendChild(nextBtn);
@@ -948,6 +1105,7 @@ function renderOnScreenControls() {
   }
 }
 
+/* منطقة الأمان لتحريك الأزرار (منع التداخل مع زر إنهاء الصلاة بالأعلى وشريط التنقل بالأسفل والحواف الجانبية) */
 function initDragHandler(element, onPositionUpdate) {
   let isDragging = false;
 
@@ -956,15 +1114,26 @@ function initDragHandler(element, onPositionUpdate) {
     const vh = window.innerHeight || document.documentElement.clientHeight;
     const rect = element.getBoundingClientRect();
 
-    // قيد أفقي صارم يمنع خروج الأزرار يميناً أو يساراً، وحرية كاملة من أعلى الشاشة لأسفلها
-    const halfWPercent = Math.ceil(((rect.width || 64) / 2 / vw) * 100) + 2;
-    const halfHPercent = Math.ceil(((rect.height || 56) / 2 / vh) * 100) + 1;
+    const halfW = (rect.width || 64) / 2;
+    const halfH = (rect.height || 56) / 2;
+
+    // حساب حدود منطقة الأمان بالبكسل ثم تحويلها لنسب مئوية دقيقة
+    const topBarEl = document.getElementById("prayerSessionTopBar");
+    const bottomNavEl = document.getElementById("bottomNav");
+
+    const topSafePx = (topBarEl ? topBarEl.getBoundingClientRect().bottom : 54) + halfH + 8;
+    const bottomSafePx = (bottomNavEl ? bottomNavEl.getBoundingClientRect().top : vh - 84) - halfH - 8;
+
+    const minXPercent = Math.ceil(((halfW + 10) / vw) * 100);
+    const maxXPercent = Math.floor(((vw - halfW - 10) / vw) * 100);
+    const minYPercent = Math.max(10, Math.ceil((topSafePx / vh) * 100));
+    const maxYPercent = Math.min(86, Math.floor((bottomSafePx / vh) * 100));
 
     let x = (clientX / vw) * 100;
     let y = (clientY / vh) * 100;
 
-    x = Math.max(halfWPercent, Math.min(100 - halfWPercent, Math.round(x * 10) / 10));
-    y = Math.max(halfHPercent, Math.min(100 - halfHPercent, Math.round(y * 10) / 10));
+    x = Math.max(minXPercent, Math.min(maxXPercent, Math.round(x * 10) / 10));
+    y = Math.max(minYPercent, Math.min(maxYPercent, Math.round(y * 10) / 10));
 
     element.style.left = `${x}%`;
     element.style.top = `${y}%`;
@@ -994,17 +1163,80 @@ function initDragHandler(element, onPositionUpdate) {
 }
 
 /* ==========================================================================
-   6. إدارة جلسة الصلاة
+   7. إدارة جلسة الصلاة والحماية من الخروج الخاطئ (Exit Confirmation Toast)
    ========================================================================== */
-function startPrayerSession() {
+function showExitPrayerConfirmationToast(targetTab = null) {
+  pendingTabAfterExit = targetTab;
+  exitConfirmPending = true;
+
+  const toastEl = document.getElementById("exitPrayerToast");
+  const msgEl = document.getElementById("exitToastMsg");
+  const yesBtn = document.getElementById("btnExitToastYes");
+
+  if (msgEl) msgEl.innerText = t("exitPrayerConfirmAsk", "هل تريد الخروج من الصلاة؟");
+  if (yesBtn) yesBtn.innerText = t("yesBtn", "نعم");
+  if (toastEl) toastEl.style.display = "flex";
+
+  clearTimeout(exitConfirmTimer);
+  exitConfirmTimer = setTimeout(() => {
+    hideExitPrayerConfirmationToast();
+  }, 4500);
+}
+
+function hideExitPrayerConfirmationToast() {
+  exitConfirmPending = false;
+  pendingTabAfterExit = null;
+  clearTimeout(exitConfirmTimer);
+  const toastEl = document.getElementById("exitPrayerToast");
+  if (toastEl) toastEl.style.display = "none";
+}
+
+function confirmExitFromToast() {
+  const nextTab = pendingTabAfterExit;
+  hideExitPrayerConfirmationToast();
+  exitPrayerSession(false, true);
+  if (nextTab && nextTab !== "guide") {
+    switchTab(nextTab, true);
+  }
+}
+
+window.addEventListener("popstate", () => {
+  if (isPrayerActive && !isLiveCustomizing && !isLiveTextCustomizing) {
+    if (exitConfirmPending) {
+      // الضغط الثاني المتتالي على زر الرجوع يخرج فوراً
+      hideExitPrayerConfirmationToast();
+      exitPrayerSession(false, true);
+    } else {
+      history.pushState({ prayerSession: true }, "");
+      showExitPrayerConfirmationToast(null);
+    }
+  }
+});
+
+function startPrayerSession(silentMode = false) {
   isPrayerActive = true;
   currentStep = 0;
   extraSwipeCount = 0;
+  hideExitPrayerConfirmationToast();
 
+  // تفعيل منع انطفاء الشاشة أثناء الصلاة
+  requestPrayerWakeLock();
+
+  // تسجيل حالة في سجل المتصفح لاعتراض زر الرجوع
+  try {
+    history.pushState({ prayerSession: true }, "");
+  } catch (e) {}
+
+  // عزل مستشعر الاهتزاز لمدة 5 ثوانٍ عند بدء الصلاة
   shakeCoolDownActive = true;
   setTimeout(() => {
     shakeCoolDownActive = false;
   }, 5000);
+
+  // نبضة اهتزاز تفاعلية مطمئنة عند الضغط على "ابدأ صلاة الجنازة"
+  if (!silentMode) {
+    triggerPrayerVibration([60, 40, 60]);
+  }
 
   document.getElementById("startPrayerScreen").style.display = "none";
   document.getElementById("prayerSessionTopBar").style.display = "block";
@@ -1018,8 +1250,16 @@ function startPrayerSession() {
   if (navConfig.shake && !isLiveCustomizing && !isLiveTextCustomizing) initShakeSensor();
 }
 
-function exitPrayerSession(isCompleted = false) {
+function exitPrayerSession(isCompleted = false, forceImmediate = false) {
+  // إذا كانت الجلسة نشطة وطُلب الخروج دون إتمام ولم يكن قسرياً، نطلب التأكيد إلا إذا ضغط المستخدم زر إنهاء الصلاة المباشر
+  if (!forceImmediate && !isCompleted && isPrayerActive && !isLiveCustomizing && !isLiveTextCustomizing) {
+    showExitPrayerConfirmationToast(null);
+    return;
+  }
+
   isPrayerActive = false;
+  hideExitPrayerConfirmationToast();
+  releasePrayerWakeLock();
   stopVoiceRecognition();
   stopShakeSensor();
 
@@ -1046,6 +1286,7 @@ function exitPrayerSession(isCompleted = false) {
   }
 
   if (isCompleted) {
+    triggerPrayerVibration([80, 50, 120]);
     showCompletionBanner();
   }
 }
@@ -1060,7 +1301,7 @@ function showCompletionBanner() {
 }
 
 /* ==========================================================================
-   7. السبحة الإلكترونية المبتكرة (Mini-Widget التفاعلي + PiP + الأهداف المخصصة)
+   8. السبحة الإلكترونية المبتكرة (Mini-Widget + PiP + قائمة أهدافي)
    ========================================================================== */
 function openTasbeehFullScreen() {
   const modal = document.getElementById("tasbeehFullScreenModal");
@@ -1101,21 +1342,27 @@ function switchTasbeehMode(mode) {
   hideGoalSuccessBanner();
 
   const customForm = document.getElementById("customGoalFormBox");
+  const myGoalsSec = document.getElementById("myGoalsSection");
+
   if (mode === "free") {
     tasbeehTarget = 0;
     tasbeehActiveDhikr = "";
+    tasbeehActiveGoalId = null;
     localStorage.setItem("tasbeeh_target", 0);
     localStorage.setItem("tasbeeh_active_dhikr", "");
+    localStorage.removeItem("tasbeeh_active_goal_id");
     if (customForm) customForm.style.display = "none";
+    if (myGoalsSec) myGoalsSec.style.display = "none";
   } else {
     if (customForm) customForm.style.display = "flex";
+    if (myGoalsSec) myGoalsSec.style.display = "block";
+    renderMyGoalsList();
   }
 
   updateTasbeehUI();
 }
 
 function sanitizeDhikrText(raw) {
-  // إزالة أي نقطتين رأسيتين يكتبهما المستخدم لأن الواجهة تضيفهما بشكل آمن
   return String(raw || "").replace(/[:：]+/g, "").trim();
 }
 
@@ -1131,39 +1378,61 @@ function applyCustomTasbeehGoal() {
     return;
   }
 
+  const newGoalId = `${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+
   tasbeehActiveDhikr = cleanDhikr;
   tasbeehTarget = targetNum;
   tasbeehCount = 0;
   tasbeehMode = "custom";
   tasbeehGoalCompletedFlag = false;
+  tasbeehActiveGoalId = newGoalId;
+
+  // إضافة الهدف فوراً إلى قائمة "أهدافي" كهدف نشط (قيد التنفيذ)
+  tasbeehMyGoals.unshift({
+    id: newGoalId,
+    dhikr: cleanDhikr,
+    target: targetNum,
+    status: "in_progress",
+    createdAt: Date.now()
+  });
 
   localStorage.setItem("tasbeeh_active_dhikr", tasbeehActiveDhikr);
   localStorage.setItem("tasbeeh_target", tasbeehTarget);
   localStorage.setItem("tasbeeh_count", tasbeehCount);
   localStorage.setItem("tasbeeh_mode", "custom");
+  localStorage.setItem("tasbeeh_active_goal_id", tasbeehActiveGoalId);
+  localStorage.setItem("tasbeeh_my_goals", JSON.stringify(tasbeehMyGoals));
+
+  // تفريغ حقول الإدخال فوراً
+  if (dhikrInput) dhikrInput.value = "";
+  if (numInput) numInput.value = "";
 
   hideGoalSuccessBanner();
   updateTasbeehUI();
+  renderMyGoalsList();
   triggerHaptic(40);
 }
 
-function saveCompletedGoalToHistory(dhikr, target) {
-  const cleanName = sanitizeDhikrText(dhikr) || t("tasbeehOfficialTitle", "السبحة الإلكترونية");
-  const existingIdx = tasbeehMyGoals.findIndex(
-    g => g.dhikr === cleanName && Number(g.target) === Number(target)
-  );
-
-  if (existingIdx !== -1) {
-    tasbeehMyGoals[existingIdx].completedAt = Date.now();
-  } else {
-    tasbeehMyGoals.unshift({
-      id: Date.now() + Math.random().toString(36).slice(2, 6),
-      dhikr: cleanName,
-      target: Number(target),
-      completedAt: Date.now()
-    });
+function markActiveGoalCompleted() {
+  if (tasbeehActiveGoalId) {
+    const idx = tasbeehMyGoals.findIndex(g => String(g.id) === String(tasbeehActiveGoalId));
+    if (idx !== -1) {
+      tasbeehMyGoals[idx].status = "completed";
+      tasbeehMyGoals[idx].completedAt = Date.now();
+      localStorage.setItem("tasbeeh_my_goals", JSON.stringify(tasbeehMyGoals));
+      renderMyGoalsList();
+      return;
+    }
   }
 
+  const cleanName = sanitizeDhikrText(tasbeehActiveDhikr) || t("tasbeehOfficialTitle", "السبحة الإلكترونية");
+  tasbeehMyGoals.unshift({
+    id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    dhikr: cleanName,
+    target: Number(tasbeehTarget),
+    status: "completed",
+    completedAt: Date.now()
+  });
   localStorage.setItem("tasbeeh_my_goals", JSON.stringify(tasbeehMyGoals));
   renderMyGoalsList();
 }
@@ -1177,49 +1446,65 @@ function repeatSavedGoal(goalId) {
   tasbeehTarget = Number(goal.target);
   tasbeehCount = 0;
   tasbeehGoalCompletedFlag = false;
+  tasbeehActiveGoalId = goal.id;
+  goal.status = "in_progress";
 
   localStorage.setItem("tasbeeh_mode", "custom");
   localStorage.setItem("tasbeeh_active_dhikr", tasbeehActiveDhikr);
   localStorage.setItem("tasbeeh_target", tasbeehTarget);
   localStorage.setItem("tasbeeh_count", 0);
-
-  const dhikrInput = document.getElementById("inputCustomDhikr");
-  const numInput = document.getElementById("inputCustomTargetNum");
-  if (dhikrInput) dhikrInput.value = tasbeehActiveDhikr;
-  if (numInput) numInput.value = tasbeehTarget;
+  localStorage.setItem("tasbeeh_active_goal_id", tasbeehActiveGoalId);
+  localStorage.setItem("tasbeeh_my_goals", JSON.stringify(tasbeehMyGoals));
 
   hideGoalSuccessBanner();
   updateTasbeehUI();
+  renderMyGoalsList();
   triggerHaptic(40);
 }
 
 function deleteSavedGoal(goalId) {
   tasbeehMyGoals = tasbeehMyGoals.filter(g => String(g.id) !== String(goalId));
+  if (String(tasbeehActiveGoalId) === String(goalId)) {
+    tasbeehActiveGoalId = null;
+    localStorage.removeItem("tasbeeh_active_goal_id");
+  }
   localStorage.setItem("tasbeeh_my_goals", JSON.stringify(tasbeehMyGoals));
   renderMyGoalsList();
 }
 
 function renderMyGoalsList() {
+  const sectionEl = document.getElementById("myGoalsSection");
   const listEl = document.getElementById("myGoalsListContainer");
   const badgeEl = document.getElementById("myGoalsCountBadge");
+
+  if (sectionEl) {
+    sectionEl.style.display = tasbeehMode === "custom" ? "block" : "none";
+  }
   if (!listEl) return;
 
   if (badgeEl) badgeEl.innerText = tasbeehMyGoals.length;
 
   if (tasbeehMyGoals.length === 0) {
-    listEl.innerHTML = `<div class="my-goals-empty">${t("noSavedGoalsYet", "لا توجد أهداف مكتملة بعد. حدد هدفاً وأكمله ليُحفظ هنا.")}</div>`;
+    listEl.innerHTML = `<div class="my-goals-empty">${t("noSavedGoalsYet", "لا توجد أهداف مخصصة بعد. اكتب الذكر واضغط بدء الهدف.")}</div>`;
     return;
   }
 
   listEl.innerHTML = "";
   tasbeehMyGoals.forEach(item => {
+    const isCompleted = item.status === "completed";
+    const isActive = String(item.id) === String(tasbeehActiveGoalId) && !isCompleted;
+
     const row = document.createElement("div");
-    row.className = "my-goal-item";
+    row.className = `my-goal-item ${isCompleted ? "completed-goal-row" : ""} ${isActive ? "active-goal-row" : ""}`;
     row.innerHTML = `
       <div class="my-goal-info">
         <span class="bidi-safe">${item.dhikr}</span><span class="colon-sep">:</span>
         <span class="my-goal-target-num">${item.target}</span>
-        <span style="color:#10b981; margin-inline-start:6px;">✓</span>
+        ${
+          isCompleted
+            ? `<span class="goal-status-badge completed">✓ ${t("goalDoneLabel", "مكتمل")}</span>`
+            : `<span class="goal-status-badge in-progress">⏳ ${t("goalInProgressLabel", "قيد التنفيذ")}</span>`
+        }
       </div>
       <div class="my-goal-actions">
         <button type="button" class="btn-goal-repeat" onclick="repeatSavedGoal('${item.id}')">↻ ${t("repeatGoalBtn", "تكرار")}</button>
@@ -1288,7 +1573,7 @@ function handleTasbeehClick() {
       tasbeehGoalCompletedFlag = true;
       triggerHaptic([70, 60, 140]);
       showGoalSuccessBanner();
-      saveCompletedGoalToHistory(tasbeehActiveDhikr, tasbeehTarget);
+      markActiveGoalCompleted();
     } else {
       triggerHaptic(30);
     }
@@ -1333,7 +1618,7 @@ function updateTasbeehUI() {
     }
   } else {
     if (targetLabel) {
-      targetLabel.innerText = `${t("freeGoalMode", "الهدف الحر")} ∞`;
+      targetLabel.innerText = `${t("freeGoalMode", "الوضع الحر")} ∞`;
     }
     if (activeBanner) activeBanner.style.display = "none";
   }
@@ -1341,29 +1626,38 @@ function updateTasbeehUI() {
   const btnFree = document.getElementById("btnModeFreeTasbeeh");
   const btnCustom = document.getElementById("btnModeCustomGoal");
   const customForm = document.getElementById("customGoalFormBox");
+  const myGoalsSec = document.getElementById("myGoalsSection");
 
   if (tasbeehMode === "custom") {
     btnCustom?.classList.add("active");
     btnFree?.classList.remove("active");
     if (customForm) customForm.style.display = "flex";
+    if (myGoalsSec) myGoalsSec.style.display = "block";
   } else {
     btnFree?.classList.add("active");
     btnCustom?.classList.remove("active");
     if (customForm) customForm.style.display = "none";
+    if (myGoalsSec) myGoalsSec.style.display = "none";
+  }
+
+  // تحديث حلقة التقدم في الشاشة الكاملة والـ Mini-Widget معاً
+  let ratio = (tasbeehCount % 33) / 33;
+  if (tasbeehMode === "custom" && tasbeehTarget > 0) {
+    ratio = Math.min(1, tasbeehCount / tasbeehTarget);
+  } else if (tasbeehCount > 0 && ratio === 0) {
+    ratio = 1;
   }
 
   const circle = document.getElementById("tasbeehCircleProg");
   if (circle) {
     const perimeter = 603;
-    if (tasbeehMode === "custom" && tasbeehTarget > 0) {
-      const ratio = Math.min(1, tasbeehCount / tasbeehTarget);
-      const offset = perimeter - ratio * perimeter;
-      circle.style.strokeDashoffset = offset;
-    } else {
-      const freeProgress = (tasbeehCount % 33) / 33;
-      const offset = perimeter - freeProgress * perimeter;
-      circle.style.strokeDashoffset = tasbeehCount > 0 && freeProgress === 0 ? 0 : offset;
-    }
+    circle.style.strokeDashoffset = perimeter - ratio * perimeter;
+  }
+
+  const miniCircle = document.getElementById("miniWidgetRingProg");
+  if (miniCircle) {
+    const miniPerimeter = 276.46;
+    miniCircle.style.strokeDashoffset = miniPerimeter - ratio * miniPerimeter;
   }
 
   const ring = document.getElementById("tasbeehTouchRing");
@@ -1377,61 +1671,72 @@ function updateTasbeehUI() {
   if (isPipActive) renderTasbeehPipCanvas();
 }
 
-/* دعم Picture-in-Picture (PiP) عبر Canvas & Video للعمل فوق التطبيقات الأخرى */
+/* رسم حلقة التسبيح واللون والعداد بدقة عالية داخل Canvas لوضع PiP */
 function renderTasbeehPipCanvas() {
   const canvas = document.getElementById("tasbeehPipCanvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const w = canvas.width;
   const h = canvas.height;
+  const isDark = document.body.classList.contains("dark");
 
   ctx.clearRect(0, 0, w, h);
 
-  // خلفية دائرية داكنة أنيقة
-  ctx.fillStyle = "#070A0F";
+  // خلفية متناسقة مع وضع المظهر
+  ctx.fillStyle = isDark ? "#070A0F" : "#F8FAFC";
   ctx.fillRect(0, 0, w, h);
 
-  // حلقة التقدم
+  // هالة خفيفة بلون التطبيق
   const cx = w / 2;
   const cy = h / 2;
-  const radius = 118;
+  const grad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 160);
+  grad.addColorStop(0, isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)");
+  grad.addColorStop(1, "transparent");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
 
+  // حلقة الخلفية
+  const radius = 132;
   ctx.beginPath();
   ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.strokeStyle = "rgba(148, 163, 184, 0.2)";
-  ctx.lineWidth = 14;
+  ctx.strokeStyle = isDark ? "rgba(148, 163, 184, 0.2)" : "rgba(15, 23, 42, 0.12)";
+  ctx.lineWidth = 16;
   ctx.stroke();
 
+  // نسبة التقدم
   let ratio = (tasbeehCount % 33) / 33;
   if (tasbeehMode === "custom" && tasbeehTarget > 0) {
     ratio = Math.min(1, tasbeehCount / tasbeehTarget);
+  } else if (tasbeehCount > 0 && ratio === 0) {
+    ratio = 1;
   }
 
   ctx.beginPath();
   ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + ratio * Math.PI * 2);
   ctx.strokeStyle = userAccent || "#0284C7";
-  ctx.lineWidth = 14;
+  ctx.lineWidth = 16;
   ctx.lineCap = "round";
   ctx.stroke();
 
   // اسم الذكر في الأعلى
-  ctx.fillStyle = "#94a3b8";
-  ctx.font = "bold 20px 'Noto Sans Arabic', sans-serif";
+  ctx.fillStyle = isDark ? "#94a3b8" : "#475569";
+  ctx.font = "bold 22px 'Noto Sans Arabic', sans-serif";
   ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
   const topLabel =
     tasbeehMode === "custom" && tasbeehActiveDhikr
       ? tasbeehActiveDhikr
       : t("tasbeehOfficialTitle", "السبحة الإلكترونية");
-  ctx.fillText(topLabel, cx, cy - 48);
+  ctx.fillText(topLabel, cx, cy - 58);
 
-  // العدد الرئيسي
-  ctx.fillStyle = "#f8fafc";
-  ctx.font = "800 68px 'Inter', sans-serif";
-  ctx.fillText(String(tasbeehCount), cx, cy + 20);
+  // العداد الرئيسي في المنتصف
+  ctx.fillStyle = isDark ? "#f8fafc" : "#0f172a";
+  ctx.font = "800 76px 'Inter', sans-serif";
+  ctx.fillText(String(tasbeehCount), cx, cy + 6);
 
   // الهدف في الأسفل
   ctx.fillStyle = userAccent || "#0284C7";
-  ctx.font = "bold 20px 'Noto Sans Arabic', sans-serif";
+  ctx.font = "bold 22px 'Noto Sans Arabic', sans-serif";
   const bottomLabel =
     tasbeehMode === "custom" && tasbeehTarget > 0
       ? `${tasbeehCount} / ${tasbeehTarget}`
@@ -1457,7 +1762,7 @@ async function toggleTasbeehPiP() {
 
     renderTasbeehPipCanvas();
     if (!video.srcObject) {
-      const stream = canvas.captureStream(15);
+      const stream = canvas.captureStream(20);
       video.srcObject = stream;
     }
     await video.play();
@@ -1484,13 +1789,12 @@ async function toggleTasbeehPiP() {
       isPipActive = false;
     };
   } catch (err) {
-    // في حال عدم دعم المتصفح للـ PiP نتحول فوراً للـ Mini-Widget التفاعلي العائم
     minimizeTasbeehToFloating();
   }
 }
 
 /* ==========================================================================
-   8. فتح الـ 200 لون إضافي وشبكة التمرير
+   9. فتح الـ 200 لون إضافي وشبكة التمرير
    ========================================================================== */
 function openCustomColor(fromOnboarding = false) {
   const palette = document.getElementById("premiumColorPalette");
@@ -1524,19 +1828,12 @@ function closeModal() {
 }
 
 /* ==========================================================================
-   9. التحكم في ظهور نصوص الدليل ولوحة الإعدادات الشاملة
+   10. لوحة الإعدادات الشاملة (مفرقة بذكاء بين العربية واللغات الأجنبية)
    ========================================================================== */
-function toggleTextVisibility(key) {
-  textVisibility[key] = !textVisibility[key];
-  localStorage.setItem(`vis_${key}`, textVisibility[key]);
-  buildSlides();
-  populateSettingsPanel();
-}
-
 function getShakeSensitivityDesc(val) {
   const v = parseInt(val, 10);
-  if (v <= 9) return t("shakeVeryEasy", "أسهل / فائق الحساسية");
-  if (v <= 15) return t("shakeModerate", "معتدل");
+  if (v <= 14) return t("shakeVeryEasy", "حساس");
+  if (v <= 19) return t("shakeModerate", "معتدل");
   return t("shakeFirm", "قوي");
 }
 
@@ -1569,7 +1866,10 @@ function populateSettingsPanel() {
       </button>
     </div>
 
-    <!-- 3. إعدادات حجم الخط + زر التخصيص الحي لأحجام النصوص -->
+    <!-- 3. إعدادات الخطوط (بسيط للعربية، وموحد للغات غير العربية) -->
+    ${
+      isArabicLang
+        ? `
     <div class="setting-group">
       <div class="setting-title">${t("fontSize", "حجم الخط")}</div>
       <div class="pill-button-group">
@@ -1578,40 +1878,25 @@ function populateSettingsPanel() {
         <button type="button" data-font="large" class="pill-btn font-btn ${currentFont === "large" ? "active" : ""}">${t("large", "كبير")}</button>
         <button type="button" data-font="huge" class="pill-btn font-btn ${currentFont === "huge" ? "active" : ""}">${t("huge", "ضخم")}</button>
       </div>
-      <button type="button" class="styled-action-btn" onclick="openLiveTextSizeCustomizer()" style="border-color: rgba(var(--accent-rgb), 0.4); color: var(--accent);">
-        🔠 ${t("customizeTextSizesBtn", "تخصيص أحجام النصوص")}
-      </button>
       <div class="font-sub-notice">
         ${t("fontNotice", "يتغير حجم الخط بوضوح داخل الأدعية والدليل، ويبقى متزناً في الواجهة للحفاظ على الشاشة")}
       </div>
     </div>
-
-    <!-- 4. تخصيص ظهور نصوص الدليل (يظهر فقط في اللغات غير العربية) -->
-    ${
-      !isArabicLang
-        ? `
+    `
+        : `
     <div class="setting-group">
-      <div class="setting-title">${t("textDisplayOptions", "ظهور نصوص الدليل")}</div>
-      <div class="text-display-toggle-group">
-        <button type="button" class="text-display-toggle-btn ${textVisibility.arabic ? "active" : ""}" onclick="toggleTextVisibility('arabic')">
-          ${textVisibility.arabic ? "✓ " : ""}${t("arabicScript", "النص العربي")}
-        </button>
-        <button type="button" class="text-display-toggle-btn ${textVisibility.translit ? "active" : ""}" onclick="toggleTextVisibility('translit')">
-          ${textVisibility.translit ? "✓ " : ""}${t("translitScript", "النطق اللاتيني")}
-        </button>
-        <button type="button" class="text-display-toggle-btn ${textVisibility.translation ? "active" : ""}" onclick="toggleTextVisibility('translation')">
-          ${textVisibility.translation ? "✓ " : ""}${t("meaningTrans", "الترجمة")}
-        </button>
-      </div>
-      <button type="button" class="styled-action-btn" onclick="openLiveTextSizeCustomizer()" style="margin-top: 10px; border-color: rgba(var(--accent-rgb), 0.35); color: var(--accent);">
-        🔠 ${t("customizeTextSizesBtn", "تخصيص أحجام النصوص")}
+      <div class="setting-title">${t("fontSize", "Font Size")}</div>
+      <button type="button" class="styled-action-btn" onclick="openUnifiedGuideTextCustomizer()" style="margin-top: 0; border-color: rgba(var(--accent-rgb), 0.45); color: var(--accent);">
+        🔠 ${t("fontAndGuideCustomizeBtn", "Font Size & Guide Customization")}
       </button>
+      <div class="font-sub-notice">
+        ${t("fontNotice", "Font size changes prominently within supplications and guide, staying balanced in UI.")}
+      </div>
     </div>
     `
-        : ""
     }
 
-    <!-- 5. طرق التقليب والتنقل -->
+    <!-- 4. طرق التقليب والتنقل -->
     <div class="setting-group">
       <div class="setting-title">
         <span>🎮 ${t("navControlsTitle", "طرق التقليب والتنقل")}</span>
@@ -1640,13 +1925,13 @@ function populateSettingsPanel() {
           <input type="checkbox" id="chkShake" class="custom-checkbox" ${navConfig.shake ? "checked" : ""} onchange="toggleNavOption('shake', this.checked)">
         </div>
       </div>
-      <!-- شريط حساسية الاهتزاز المترجم بالكامل مع فصل النقطتين -->
+      <!-- شريط حساسية الاهتزاز من 11 وحتى 25 -->
       <div id="shakeSensitivityRow" style="display: ${navConfig.shake ? "block" : "none"}; padding: 0 12px 14px; border-bottom: 1px solid rgba(128,128,128,0.08);">
          <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
            <div><span class="bidi-safe">${t("shakeForceRequired", "قوة الاهتزاز المطلوبة")}</span><span class="colon-sep">:</span></div>
            <span id="shakeThresholdVal" class="bidi-safe">${shakeMotionThreshold} (${getShakeSensitivityDesc(shakeMotionThreshold)})</span>
          </div>
-         <input type="range" min="7" max="25" value="${shakeMotionThreshold}" oninput="updateShakeThreshold(this.value)" style="width: 100%; accent-color: var(--accent);">
+         <input type="range" min="11" max="25" value="${shakeMotionThreshold}" oninput="updateShakeThreshold(this.value)" style="width: 100%; accent-color: var(--accent);">
       </div>
 
       <!-- الصوت -->
@@ -1724,7 +2009,7 @@ function populateSettingsPanel() {
 }
 
 function updateShakeThreshold(val) {
-  shakeMotionThreshold = parseInt(val, 10);
+  shakeMotionThreshold = Math.max(11, Math.min(25, parseInt(val, 10)));
   localStorage.setItem("nav_shakeThreshold", shakeMotionThreshold);
   const label = document.getElementById("shakeThresholdVal");
   if (label) {
@@ -1738,117 +2023,28 @@ function toggleAutoEndTasleem(checked) {
 }
 
 /* ==========================================================================
-   10. قوائم قسم الإضافات (الأدعية والسبحة)
+   11. قسم الإضافات (السبحة الإلكترونية كعنصر أساسي نظيف للنشر)
    ========================================================================== */
 function renderExtrasView() {
   const container = document.getElementById("extrasPanel");
   if (!container) return;
-  container.innerHTML = "";
 
-  if (extrasLevel === 1) {
-    container.innerHTML = `
-      <div class="extras-menu-card" onclick="openTasbeehFullScreen()" style="border-color: var(--accent); background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.15), rgba(var(--accent-rgb), 0.05));">
-        <div class="extras-menu-left">
-          <div class="extras-card-icon">📿</div>
-          <div style="min-width:0;">
-            <div class="extras-item-title">${t("tasbeehOfficialTitle", "السبحة الإلكترونية")}</div>
-            <div class="extras-item-sub">${t("tasbeehOfficialSub", "شاشة كاملة منفصلة، عداد ذكي، وحفظ تلقائي للأرقام")}</div>
-          </div>
+  container.innerHTML = `
+    <div class="extras-menu-card" onclick="openTasbeehFullScreen()" style="border-color: var(--accent); background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.15), rgba(var(--accent-rgb), 0.05));">
+      <div class="extras-menu-left">
+        <div class="extras-card-icon">📿</div>
+        <div style="min-width:0;">
+          <div class="extras-item-title">${t("tasbeehOfficialTitle", "السبحة الإلكترونية")}</div>
+          <div class="extras-item-sub">${t("tasbeehOfficialSub", "شاشة كاملة منفصلة، عداد ذكي، أهداف مخصصة ونافذة عائمة")}</div>
         </div>
-        <div style="font-size:1.2rem; color:var(--accent);">❯</div>
       </div>
-      
-      <div class="extras-menu-card" onclick="openExtrasLevel2()">
-        <div class="extras-menu-left">
-          <div class="extras-card-icon">🤲</div>
-          <div style="min-width:0;">
-            <div class="extras-item-title">${t("adhkarAndDuas", "الأذكار والأدعية")}</div>
-            <div class="extras-item-sub">${t("adhkarSub", "أدعية المتوفى، سنن وآداب الجنائز، أذكار عامة مأثورة")}</div>
-          </div>
-        </div>
-        <div style="font-size:1.2rem; color:var(--text-secondary);">❯</div>
-      </div>
-    `;
-  } else if (extrasLevel === 2) {
-    let html = `
-      <div class="extras-nav-header">
-        <button type="button" class="extras-back-btn" onclick="extrasGoBack()">
-          ${t("backBtn", "❮ عودة")}
-        </button>
-        <div class="extras-view-title">${t("adhkarAndDuas", "الأذكار والأدعية")}</div>
-      </div>
-    `;
-
-    if (typeof duasData !== "undefined") {
-      duasData.forEach(cat => {
-        const catTitle = cat.title[currentLang] || cat.title["العربية"];
-        const catDesc = cat.desc[currentLang] || cat.desc["العربية"];
-        html += `
-          <div class="extras-menu-card" onclick="openExtrasLevel3('${cat.id}')">
-            <div class="extras-menu-left">
-              <div class="extras-card-icon">${cat.icon}</div>
-              <div style="min-width:0;">
-                <div class="extras-item-title">${catTitle}</div>
-                <div class="extras-item-sub">${catDesc}</div>
-              </div>
-            </div>
-            <div style="font-size:1.15rem; color:var(--text-secondary);">❯</div>
-          </div>
-        `;
-      });
-    }
-
-    container.innerHTML = html;
-  } else if (extrasLevel === 3 && selectedCategory) {
-    const catTitle = selectedCategory.title[currentLang] || selectedCategory.title["العربية"];
-    let html = `
-      <div class="extras-nav-header">
-        <button type="button" class="extras-back-btn" onclick="extrasGoBack()">
-          ${t("backBtn", "❮ عودة")}
-        </button>
-        <div class="extras-view-title">${catTitle}</div>
-      </div>
-    `;
-
-    selectedCategory.items.forEach(item => {
-      const itemTitle = item.title[currentLang] || item.title["العربية"];
-      const itemMeaning = item.meaning[currentLang] || item.meaning["العربية"] || "";
-      html += `
-        <div class="dua-entry-card">
-          <div class="dua-entry-title">
-            <span>🔹</span>
-            <span style="flex:1;">${itemTitle}</span>
-          </div>
-          <div class="dua-entry-arabic">${item.arabic}</div>
-          ${itemMeaning ? `<div class="dua-entry-meaning">${itemMeaning}</div>` : ""}
-        </div>
-      `;
-    });
-
-    container.innerHTML = html;
-  }
-}
-
-function openExtrasLevel2() {
-  extrasLevel = 2;
-  renderExtrasView();
-}
-function openExtrasLevel3(catId) {
-  if (typeof duasData !== "undefined") {
-    selectedCategory = duasData.find(c => c.id === catId);
-    if (!selectedCategory) return;
-    extrasLevel = 3;
-    renderExtrasView();
-  }
-}
-function extrasGoBack() {
-  if (extrasLevel === 3) extrasLevel = 2;
-  else if (extrasLevel === 2) extrasLevel = 1;
-  renderExtrasView();
+      <div style="font-size:1.2rem; color:var(--accent);">❯</div>
+    </div>
+  `;
 }
 
 /* ==========================================================================
-   11. نافذة التلميحات، اللغات، وتحديث نصوص الواجهة بالكامل
+   12. نافذة التلميحات، اللغات، وتحديث نصوص الواجهة بالكامل
    ========================================================================== */
 function openHintModal(type) {
   if (typeof hintDetails === "undefined") return;
@@ -1955,9 +2151,9 @@ function updateUI() {
   const btnResetBtnCust = document.getElementById("btnResetBtnCust");
   if (btnResetBtnCust) btnResetBtnCust.innerText = t("resetDefaultBtn", "استعادة الافتراضي");
 
-  // ترجمة شريط التخصيص الحي لأحجام النصوص
+  // ترجمة شريط التخصيص الموحد للخطوط ونصوص الدليل
   const liveTextCustTitle = document.getElementById("liveTextCustTitle");
-  if (liveTextCustTitle) liveTextCustTitle.innerText = `🔠 ${t("customizeTextSizesBtn", "تخصيص أحجام النصوص")}`;
+  if (liveTextCustTitle) liveTextCustTitle.innerText = `🔠 ${t("fontAndGuideCustomizeBtn", "حجم الخط وتخصيص الدليل")}`;
   const btnLiveTextCustSave = document.getElementById("btnLiveTextCustSave");
   if (btnLiveTextCustSave) btnLiveTextCustSave.innerText = t("saveAndExitBtn", "حفظ وخروج ✓");
   const lblCustArabicSize = document.getElementById("lblCustArabicSize");
@@ -1973,25 +2169,27 @@ function updateUI() {
 
   // ترجمة جميع عناصر السبحة الإلكترونية
   const tasbeehFsTitle = document.getElementById("tasbeehFsTitle");
-  if (tasbeehFsTitle) tasbeehFsTitle.innerText = t("tasbeehOfficialTitle", "السبحة الإلكترونية");
+  if (tasbeehFsTitle) tasbeehFsTitle.innerText = `📿 ${t("tasbeehOfficialTitle", "السبحة الإلكترونية")}`;
+  const btnBackTasbeehText = document.getElementById("btnBackTasbeehText");
+  if (btnBackTasbeehText) btnBackTasbeehText.innerText = t("backBtn", "العودة");
   const btnMinimizeTasbeehText = document.getElementById("btnMinimizeTasbeehText");
   if (btnMinimizeTasbeehText) btnMinimizeTasbeehText.innerText = t("minimizeBtn", "تصغير");
   const btnPipTasbeehText = document.getElementById("btnPipTasbeehText");
-  if (btnPipTasbeehText) btnPipTasbeehText.innerText = t("pipBtnLabel", "عائم خارجي");
-  const btnCloseTasbeehText = document.getElementById("btnCloseTasbeehText");
-  if (btnCloseTasbeehText) btnCloseTasbeehText.innerText = t("close", "إغلاق");
+  if (btnPipTasbeehText) btnPipTasbeehText.innerText = t("pipBtnLabel", "عائم");
+  const btnTopResetTasbeehText = document.getElementById("btnTopResetTasbeehText");
+  if (btnTopResetTasbeehText) btnTopResetTasbeehText.innerText = t("resetShortBtn", "تصفير");
   const tasbeehNotice = document.getElementById("tasbeehAutoSaveNotice");
   if (tasbeehNotice) tasbeehNotice.innerText = `💾 ${t("tasbeehNotice", "يقوم العداد بحفظ أرقام التسبيح والأهداف تلقائياً حتى عند إغلاق التطبيق")}`;
   const btnModeFreeTasbeeh = document.getElementById("btnModeFreeTasbeeh");
-  if (btnModeFreeTasbeeh) btnModeFreeTasbeeh.innerText = `${t("freeGoalMode", "الهدف الحر")} ∞`;
+  if (btnModeFreeTasbeeh) btnModeFreeTasbeeh.innerText = `${t("freeGoalMode", "الوضع الحر")} ∞`;
   const btnModeCustomGoal = document.getElementById("btnModeCustomGoal");
-  if (btnModeCustomGoal) btnModeCustomGoal.innerText = `${t("setCustomGoalMode", "تحديد هدف")} 🎯`;
+  if (btnModeCustomGoal) btnModeCustomGoal.innerText = `${t("setCustomGoalMode", "هدف مخصص")} 🎯`;
   const inputCustomDhikr = document.getElementById("inputCustomDhikr");
   if (inputCustomDhikr) inputCustomDhikr.placeholder = t("dhikrInputPlaceholder", "اكتب الذكر (مثل: سبحان الله)");
   const inputCustomTargetNum = document.getElementById("inputCustomTargetNum");
   if (inputCustomTargetNum) inputCustomTargetNum.placeholder = t("targetCountPlaceholder", "العدد (مثل: 110)");
   const btnStartCustomGoal = document.getElementById("btnStartCustomGoal");
-  if (btnStartCustomGoal) btnStartCustomGoal.innerText = t("startCustomGoalBtn", "بدء الهدف المخصص");
+  if (btnStartCustomGoal) btnStartCustomGoal.innerText = t("startCustomGoalBtn", "بدء الهدف");
   const lblTasbeehHaptic = document.getElementById("lblTasbeehHaptic");
   if (lblTasbeehHaptic) lblTasbeehHaptic.innerText = t("hapticFeedbackLabel", "الاهتزاز اللمسي (Haptic)");
   const lblTasbeehRingSize = document.getElementById("lblTasbeehRingSize");
@@ -2011,7 +2209,7 @@ function updateUI() {
 }
 
 /* ==========================================================================
-   12. شاشة التهيئة الأولى (Onboarding) والتبديل بين التبويبات
+   13. شاشة التهيئة الأولى (Onboarding) والتبديل المحمي بين التبويبات
    ========================================================================== */
 function showOnboardingIfNeeded() {
   const skipOnboard = localStorage.getItem("skipOnboarding");
@@ -2069,16 +2267,22 @@ function finishOnboarding() {
   document.getElementById("colorOnboardingModal").style.display = "none";
 }
 
-function switchTab(tab) {
+function switchTab(tab, bypassPrayerGuard = false) {
+  // حماية جلسة الصلاة النشطة من الانتقال الخاطئ لتبويب آخر
+  if (isPrayerActive && !bypassPrayerGuard && !isLiveCustomizing && !isLiveTextCustomizing && tab !== "guide") {
+    showExitPrayerConfirmationToast(tab);
+    return;
+  }
+
   if (isLiveCustomizing && tab !== "guide") {
     isLiveCustomizing = false;
     document.getElementById("liveCustomizerToolbar").style.display = "none";
-    exitPrayerSession(false);
+    exitPrayerSession(false, true);
   }
   if (isLiveTextCustomizing && tab !== "guide") {
     isLiveTextCustomizing = false;
     document.getElementById("liveTextCustomizerToolbar").style.display = "none";
-    exitPrayerSession(false);
+    exitPrayerSession(false, true);
   }
 
   document.getElementById("extrasPanel").classList.remove("active");
@@ -2104,7 +2308,6 @@ function switchTab(tab) {
     if (onScreenControls) onScreenControls.classList.remove("active");
 
     if (tab === "extras") {
-      extrasLevel = 1;
       renderExtrasView();
       document.getElementById("extrasPanel").classList.add("active");
     } else if (tab === "settings") {
@@ -2137,6 +2340,7 @@ window.openQrModal = openQrModal;
 window.goToStep = goToStep;
 window.startPrayerSession = startPrayerSession;
 window.exitPrayerSession = exitPrayerSession;
+window.confirmExitFromToast = confirmExitFromToast;
 window.openHintModal = openHintModal;
 window.closeHintModal = closeHintModal;
 window.openLiveCustomizer = openLiveCustomizer;
@@ -2147,16 +2351,14 @@ window.updateLiveButtonScale = updateLiveButtonScale;
 window.updateLiveButtonOpacity = updateLiveButtonOpacity;
 window.setLiveButtonLayout = setLiveButtonLayout;
 window.toggleDualButtonsLock = toggleDualButtonsLock;
-window.openLiveTextSizeCustomizer = openLiveTextSizeCustomizer;
+window.openUnifiedGuideTextCustomizer = openUnifiedGuideTextCustomizer;
+window.toggleGuideTextVisibility = toggleGuideTextVisibility;
 window.updateLiveTextScale = updateLiveTextScale;
 window.resetLiveTextSizes = resetLiveTextSizes;
 window.saveAndExitTextCustomizer = saveAndExitTextCustomizer;
 window.toggleNavOption = toggleNavOption;
 window.toggleAutoEndTasleem = toggleAutoEndTasleem;
 window.updateShakeThreshold = updateShakeThreshold;
-window.openExtrasLevel2 = openExtrasLevel2;
-window.openExtrasLevel3 = openExtrasLevel3;
-window.extrasGoBack = extrasGoBack;
 window.openTasbeehFullScreen = openTasbeehFullScreen;
 window.closeTasbeehFullScreen = closeTasbeehFullScreen;
 window.minimizeTasbeehToFloating = minimizeTasbeehToFloating;
@@ -2173,7 +2375,6 @@ window.adjustTasbeehRingSize = adjustTasbeehRingSize;
 window.handleTasbeehClick = handleTasbeehClick;
 window.openCustomColor = openCustomColor;
 window.closeModal = closeModal;
-window.toggleTextVisibility = toggleTextVisibility;
 
 /* ==========================================================================
    التهيئة الأولية عند تشغيل الصفحة
@@ -2188,7 +2389,18 @@ window.toggleTextVisibility = toggleTextVisibility;
 
   const container = document.getElementById("swipeContainer");
   container.addEventListener("touchstart", handleTouchStart, { passive: true });
+  container.addEventListener("touchmove", handleTouchMove, { passive: true });
   container.addEventListener("touchend", handleTouchEnd, { passive: true });
+
+  // تفعيل السحب باللمس للأشرطة العائمة
+  initFloatingToolbarDrag(
+    document.getElementById("liveCustomizerToolbar"),
+    document.getElementById("btnCustomizerDragHandle")
+  );
+  initFloatingToolbarDrag(
+    document.getElementById("liveTextCustomizerToolbar"),
+    document.getElementById("textCustomizerDragHandle")
+  );
 
   document.getElementById("navGuide").onclick = () => switchTab("guide");
   document.getElementById("navExtras").onclick = () => switchTab("extras");
