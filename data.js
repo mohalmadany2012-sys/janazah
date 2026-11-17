@@ -160,9 +160,20 @@ const uiMap = {
   settings: { English: "Settings", العربية: "الإعدادات", اردو: "ترتیبات", Français: "Paramètres", Deutsch: "Einstellungen", Русский: "Настройки", Español: "Ajustes", हिन्दी: "सेटिंग्स", Indonesia: "Pengaturan" },
   language: { English: "Language", العربية: "اللغة", اردو: "زبان", Français: "Langue", Deutsch: "Sprache", Русский: "Язык", Español: "Idioma", हिन्दी: "भाषा", Indonesia: "Bahasa" },
 
-  // الخطوط والمظهر والألوان
+  // الخطوط والمظهر والألوان وتخصيص الدليل الموحد
   fontSize: { English: "Font Size", العربية: "حجم الخط", اردو: "فونٹ سائز", Français: "Taille de police", Deutsch: "Schriftgröße", Русский: "Размер шрифта", Español: "Tamaño de fuente", हिन्दी: "फ़ॉन्ट आकार", Indonesia: "Ukuran Font" },
-  customizeTextSizesBtn: { English: "Customize Text Sizes", العربية: "تخصيص أحجام النصوص", اردو: "متن کے سائز کی تخصیص", Français: "Personnaliser la taille des textes", Deutsch: "Textgrößen anpassen", Русский: "Настроить размер текста", Español: "Personalizar tamaños de texto", हिन्दी: "टेक्स्ट आकार कस्टमाइज़ करें", Indonesia: "Sesuaikan Ukuran Teks" },
+  fontAndGuideCustomizeBtn: { English: "Font Size & Guide Customization", العربية: "حجم الخط وتخصيص الدليل", اردو: "فونٹ سائز اور گائیڈ کی تخصیص", Français: "Taille de police et personnalisation", Deutsch: "Schriftgröße & Leitfaden anpassen", Русский: "Размер шрифта и настройка гида", Español: "Tamaño de fuente y personalización", हिन्दी: "फ़ॉन्ट आकार और गाइड कस्टमाइज़ेशन", Indonesia: "Ukuran Font & Kustomisasi Panduan" },
+  mustKeepOneTextAlert: {
+    English: "At least one language/script must remain visible to keep the guide working.",
+    العربية: "يجب إبقاء لغة واحدة على الأقل ظاهرة لضمان عمل الدليل",
+    اردو: "رہنما کو چلانے کے لیے کم از کم ایک زبان کا ظاہر رہنا ضروری ہے۔",
+    Français: "Au moins une langue doit rester visible pour assurer le fonctionnement du guide.",
+    Deutsch: "Mindestens eine Sprache muss sichtbar bleiben, damit der Leitfaden funktioniert.",
+    Русский: "Хотя бы один язык должен оставаться видимым для работы гида.",
+    Español: "Debe mantener visible al menos un idioma para garantizar el funcionamiento de la guía.",
+    हिन्दी: "गाइड के काम करने के लिए कम से कम एक भाषा दृश्यमान रहनी चाहिए।",
+    Indonesia: "Minimal satu bahasa harus tetap ditampilkan agar panduan berfungsi."
+  },
   swipeToPreviewHint: { English: "Swipe cards to preview text sizes", العربية: "اسحب البطاقة لمعاينة النصوص", اردو: "متن دیکھنے کے لیے کارڈ سوائپ کریں", Français: "Glissez la carte pour prévisualiser", Deutsch: "Karte wischen zur Vorschau", Русский: "Смахните карточку для просмотра", Español: "Desliza la tarjeta para previsualizar", हिन्दी: "पूर्वावलोकन के लिए कार्ड स्वाइप करें", Indonesia: "Usap kartu untuk pratinjau teks" },
   fontNotice: {
     English: "Font size changes prominently within supplications and guide, staying balanced in UI.",
@@ -204,7 +215,7 @@ const uiMap = {
   swipeNav: { English: "Swipe Gestures", العربية: "التقليب بسحب الشاشة", اردو: "اسکرین سوائپ", Français: "Balayage tactile", Deutsch: "Wischgesten", Русский: "Жесты смахивания", Español: "Deslizamiento táctil", हिन्दी: "स्क्रीन स्वाइप", Indonesia: "Usap Layar" },
   shakeNav: { English: "Shake Motion", العربية: "التقليب باهتزاز الجهاز", اردو: "فون ہلانے پر", Français: "Secousse de l'appareil", Deutsch: "Geräteschütteln", Русский: "Встряхивание устройства", Español: "Agitar el dispositivo", हिन्दी: "डिवाइस हिलाकर", Indonesia: "Guncang Perangkat" },
   shakeForceRequired: { English: "Required Shake Force", العربية: "قوة الاهتزاز المطلوبة", اردو: "ہلانے کی مطلوبہ قوت", Français: "Force de secousse requise", Deutsch: "Erforderliche Schüttelstärke", Русский: "Сила встряхивания", Español: "Fuerza de agitación requerida", हिन्दी: "आवश्यक हिलाने की शक्ति", Indonesia: "Kekuatan Guncangan" },
-  shakeVeryEasy: { English: "Easier / Ultra Sensitive", العربية: "أسهل / فائق الحساسية", اردو: "آسان / انتہائی حساس", Français: "Plus facile / Très sensible", Deutsch: "Leichter / Sehr empfindlich", Русский: "Легче / Высокая чувств.", Español: "Más fácil / Muy sensible", हिन्दी: "आसान / अति संवेदनशील", Indonesia: "Lebih Mudah / Sangat Sensitif" },
+  shakeVeryEasy: { English: "Sensitive", العربية: "حساس", اردو: "حساس", Français: "Sensible", Deutsch: "Empfindlich", Русский: "Чувствительный", Español: "Sensible", हिन्दी: "संवेदनशील", Indonesia: "Sensitif" },
   shakeModerate: { English: "Moderate", العربية: "معتدل", اردو: "معتدل", Français: "Modéré", Deutsch: "Mittel", Русский: "Умеренно", Español: "Moderado", हिन्दी: "सामान्य", Indonesia: "Sedang" },
   shakeFirm: { English: "Firm", العربية: "قوي", اردو: "مضبوط", Français: "Ferme", Deutsch: "Stark", Русский: "Сильно", Español: "Firme", हिन्दी: "मज़बूत", Indonesia: "Kuat" },
   voiceNav: { English: "Voice Recognition", العربية: "التقليب بالصوت", اردو: "آوازی نیویگیشن", Français: "Reconnaissance vocale", Deutsch: "Spracherkennung", Русский: "Голосовое управление", Español: "Reconocimiento de voz", हिन्दी: "आवाज़ द्वारा", Indonesia: "Perintah Suara" },
@@ -223,15 +234,15 @@ const uiMap = {
   resetDefaultBtn: { English: "Reset Default", العربية: "استعادة الافتراضي", اردو: "ڈیفالٹ بحال کریں", Français: "Réinitialiser", Deutsch: "Zurücksetzen", Русский: "Сбросить", Español: "Restablecer", हिन्दी: "डिफ़ॉल्ट रीसेट करें", Indonesia: "Atur Ulang" },
   voiceAutoEnd: { English: "Auto-End Prayer upon Tasleem", العربية: "الإنهاء التلقائي عند التسليم", اردو: "سلام پر خودکار اختتام", Français: "Fin automatique au salut final", Deutsch: "Automatisches Beenden beim Friedensgruß", Русский: "Автозавершение при таслиме", Español: "Finalizar automáticamente al dar el salam", हिन्दी: "सलाम पर स्वतः समाप्ति", Indonesia: "Selesai Otomatis Saat Salam" },
 
-  // شاشة الصلاة والأدعية
+  // شاشة الصلاة وتأكيد الخروج
   startPrayerBtn: { English: "Start Funeral Prayer", العربية: "ابدأ صلاة الجنازة", اردو: "نمازِ جنازہ شروع کریں", Français: "Démarrer la prière funéraire", Deutsch: "Totengebet beginnen", Русский: "Начать заупокойную молитву", Español: "Iniciar oración fúnebre", हिन्दी: "नमाज़-ए-जनाज़ा शुरू करें", Indonesia: "Mulai Shalat Jenazah" },
   startScreenDesc: { English: "Interactive step-by-step 4-Takbeer guide with touch, voice, and motion controls.", العربية: "دليل تفاعلي متزامن خطوة بخطوة مع أربع تكبيرات، يدعم التبديل اللمسي والصوتي والحركي.", اردو: "چار تکبیروں کا مکمل اور مرحلہ وار رہنما۔ سینسرز صرف نماز کے دوران کام کریں گے۔", Français: "Guide interactif étape par étape avec 4 takbirs.", Deutsch: "Interaktiver Leitfaden mit 4 Takbiren.", Русский: "Пошаговое интерактивное руководство из 4 такбиров.", Español: "Guía interactiva paso a paso de 4 takbirat.", हिन्दी: "4 तकबीरों का चरणबद्ध गाइड।", Indonesia: "Panduan interaktif 4 takbir langkah demi langkah." },
   exitPrayer: { English: "End Prayer", العربية: "إنهاء الصلاة", اردو: "نماز ختم کریں", Français: "Terminer la prière", Deutsch: "Gebet beenden", Русский: "Завершить молитву", Español: "Finalizar oración", हिन्दी: "नमाज़ समाप्त करें", Indonesia: "Akhiri Shalat" },
+  exitPrayerConfirmAsk: { English: "Do you want to exit the prayer?", العربية: "هل تريد الخروج من الصلاة؟", اردو: "کیا آپ نماز سے باہر نکلنا چاہتے ہیں؟", Français: "Voulez-vous quitter la prière ?", Deutsch: "Möchten Sie das Gebet verlassen?", Русский: "Вы хотите выйти из молитвы?", Español: "¿Desea salir de la oración?", हिन्दी: "क्या आप नमाज़ से बाहर निकलना चाहते हैं?", Indonesia: "Apakah Anda ingin keluar dari shalat?" },
+  yesBtn: { English: "Yes", العربية: "نعم", اردو: "ہاں", Français: "Oui", Deutsch: "Ja", Русский: "Да", Español: "Sí", हिन्दी: "हाँ", Indonesia: "Ya" },
   prayerCompleted: { English: "May Allah accept - Prayer completed", العربية: "تقبل الله - تم إنهاء الصلاة", اردو: "اللہ قبول فرمائے - نماز مکمل ہوئی", Français: "Qu'Allah accepte - Prière terminée", Deutsch: "Möge Allah annehmen - Gebet beendet", Русский: "Да примет Аллах - Молитва завершена", Español: "Que Alá acepte - Oración finalizada", हिन्दी: "अल्लाह क़बूल फरमाए - नमाज़ पूरी हुई", Indonesia: "Semoga Allah menerima - Shalat selesai" },
   nextTakbeer: { English: "Next Takbeer ❯", العربية: "التكبيرة التالية ❯", اردو: "اگلی تکبیر ❯", Français: "Takbir suivant ❯", Deutsch: "Nächster Takbir ❯", Русский: "Следующий такбир ❯", Español: "Siguiente Takbir ❯", हिन्दी: "अगली तकबीर ❯", Indonesia: "Takbir Selanjutnya ❯" },
-  adhkarAndDuas: { English: "Adhkar & Supplications", العربية: "الأذكار والأدعية", اردو: "اذکار اور دعائیں", Français: "Invocations et rappels", Deutsch: "Bittgebete & Adhkar", Русский: "Азкары и дуа", Español: "Adhkar y súplicas", हिन्दी: "अज़कार और दुआएं", Indonesia: "Dzikir & Doa" },
-  adhkarSub: { English: "Duas for the deceased, funeral sunnahs, authentic adhkar", العربية: "أدعية المتوفى، سنن وآداب الجنائز، أذكار عامة مأثورة", اردو: "میت کی دعائیں، جنازے کی سنتیں، ماثور اذکار", Français: "Invocations pour le défunt, sunnahs mortuaires, adhkar", Deutsch: "Bittgebete für Verstorbene, Sunnahs, authentische Adhkar", Русский: "Мольбы за умершего, сунны похорон, достоверные азкары", Español: "Súplicas por el difunto, sunnahs, adhkar auténticos", हिन्दी: "मृतक की दुआएं, जनाज़े की सुन्नतें, मसनून अज़कार", Indonesia: "Doa jenazah, sunnah janazah, dzikir shahih" },
-  backBtn: { English: "❮ Back", العربية: "❮ عودة", اردو: "❮ واپسی", Français: "❮ Retour", Deutsch: "❮ Zurück", Русский: "❮ Назад", Español: "❮ Volver", हिन्दी: "❮ वापस", Indonesia: "❮ Kembali" },
+  backBtn: { English: "Back", العربية: "العودة", اردو: "واپسی", Français: "Retour", Deutsch: "Zurück", Русский: "Назад", Español: "Volver", हिन्दी: "वापस", Indonesia: "Kembali" },
   understood: { English: "Understood", العربية: "فهمت ذلك", اردو: "سمجھ گیا", Français: "Compris", Deutsch: "Verstanden", Русский: "Понятно", Español: "Entendido", हिन्दी: "समझ गया", Indonesia: "Dimengerti" },
   mustKeepOneNav: {
     English: "At least one navigation method must remain active to operate the guide.",
@@ -249,17 +260,20 @@ const uiMap = {
   tasbeehOfficialTitle: { English: "Electronic Tasbeeh", العربية: "السبحة الإلكترونية", اردو: "الیکٹرانک تسبیح", Français: "Chapelet Électronique", Deutsch: "Elektronische Gebetskette", Русский: "Электронный тасбих", Español: "Tasbih Electrónico", हिन्दी: "इलेक्ट्रॉनिक तस्बीह", Indonesia: "Tasbih Elektronik" },
   tasbeehOfficialSub: { English: "Full-screen view, smart counter, custom goals & floating widget", العربية: "شاشة كاملة منفصلة، عداد ذكي، أهداف مخصصة ونافذة عائمة", اردو: "مکمل اسکرین، اسمارٹ کاؤنٹر، مخصوص اہداف اور تیرتا ویجٹ", Français: "Plein écran, compteur intelligent, objectifs et widget flottant", Deutsch: "Vollbild, Zähler, eigene Ziele & schwebendes Widget", Русский: "Полный экран, счётчик, свои цели и плавающий виджет", Español: "Pantalla completa, metas personalizadas y widget flotante", हिन्दी: "फुल स्क्रीन, स्मार्ट काउंटर, कस्टम लक्ष्य और फ्लोटिंग विजेट", Indonesia: "Layar penuh, penghitung cerdas, target khusus & widget" },
   minimizeBtn: { English: "Minimize", العربية: "تصغير", اردو: "چھوٹا کریں", Français: "Réduire", Deutsch: "Minimieren", Русский: "Свернуть", Español: "Minimizar", हिन्दी: "छोटा करें", Indonesia: "Kecilkan" },
-  pipBtnLabel: { English: "Floating PiP", العربية: "عائم خارجي", اردو: "بیرونی ونڈو", Français: "Fenêtre PiP", Deutsch: "Schwebefenster", Русский: "Поверх окон", Español: "Ventana PiP", हिन्दी: "फ्लोटिंग PiP", Indonesia: "Jendela PiP" },
+  pipBtnLabel: { English: "Floating", العربية: "عائم", اردو: "بیرونی", Français: "Flottant", Deutsch: "Schwebend", Русский: "Поверх", Español: "Flotante", हिन्दी: "फ्लोटिंग", Indonesia: "Mengambang" },
+  resetShortBtn: { English: "Reset", العربية: "تصفير", اردو: "صفر", Français: "Zéro", Deutsch: "Null", Русский: "Сброс", Español: "Cero", हिन्दी: "रीसेट", Indonesia: "Reset" },
   targetLabel: { English: "Goal", العربية: "الهدف", اردو: "ہدف", Français: "Objectif", Deutsch: "Ziel", Русский: "Цель", Español: "Meta", हिन्दी: "लक्ष्य", Indonesia: "Target" },
-  freeGoalMode: { English: "Free Mode", العربية: "الهدف الحر", اردو: "آزاد ہدف", Français: "Mode Libre", Deutsch: "Freier Modus", Русский: "Свободный режим", Español: "Modo Libre", हिन्दी: "मुक्त लक्ष्य", Indonesia: "Target Bebas" },
-  setCustomGoalMode: { English: "Set Goal", العربية: "تحديد هدف", اردو: "ہدف مقرر کریں", Français: "Définir un objectif", Deutsch: "Ziel setzen", Русский: "Задать цель", Español: "Fijar meta", हिन्दी: "लक्ष्य चुनें", Indonesia: "Atur Target" },
+  freeGoalMode: { English: "Free Mode", العربية: "الوضع الحر", اردو: "آزاد موڈ", Français: "Mode Libre", Deutsch: "Freier Modus", Русский: "Свободный режим", Español: "Modo Libre", हिन्दी: "मुक्त मोड", Indonesia: "Mode Bebas" },
+  setCustomGoalMode: { English: "Custom Goal", العربية: "هدف مخصص", اردو: "مخصوص ہدف", Français: "Objectif Personnalisé", Deutsch: "Eigenes Ziel", Русский: "Своя цель", Español: "Meta Personalizada", हिन्दी: "कस्टम लक्ष्य", Indonesia: "Target Khusus" },
   dhikrInputPlaceholder: { English: "Enter Dhikr (e.g. SubhanAllah)", العربية: "اكتب الذكر (مثل: سبحان الله)", اردو: "ذکر لکھیں (مثلاً سبحان اللہ)", Français: "Écrire le Dhikr (ex: SubhanAllah)", Deutsch: "Dhikr eingeben (z.B. SubhanAllah)", Русский: "Введите зикр (напр. СубханАллах)", Español: "Escribe el Dhikr (ej. SubhanAllah)", हिन्दी: "ज़िक्र लिखें (जैसे सुब्हानअल्लाह)", Indonesia: "Tulis Dzikir (mis. Subhanallah)" },
   targetCountPlaceholder: { English: "Count (e.g. 110)", العربية: "العدد (مثل: 110)", اردو: "تعداد (مثلاً 110)", Français: "Nombre (ex: 110)", Deutsch: "Anzahl (z.B. 110)", Русский: "Число (напр. 110)", Español: "Cantidad (ej. 110)", हिन्दी: "संख्या (जैसे 110)", Indonesia: "Jumlah (mis. 110)" },
-  startCustomGoalBtn: { English: "Start Custom Goal", العربية: "بدء الهدف المخصص", اردو: "مخصوص ہدف شروع کریں", Français: "Démarrer l'objectif", Deutsch: "Eigenes Ziel starten", Русский: "Начать цель", Español: "Iniciar meta personalizada", हिन्दी: "कस्टम लक्ष्य शुरू करें", Indonesia: "Mulai Target Khusus" },
+  startCustomGoalBtn: { English: "Start Goal", العربية: "بدء الهدف", اردو: "ہدف شروع کریں", Français: "Démarrer l'objectif", Deutsch: "Ziel starten", Русский: "Начать цель", Español: "Iniciar meta", हिन्दी: "लक्ष्य शुरू करें", Indonesia: "Mulai Target" },
   enterValidGoalAlert: { English: "Please enter a Dhikr name and a valid number greater than zero", العربية: "يرجى كتابة اسم الذكر وتحديد عدد صحيح أكبر من صفر", اردو: "براہ کرم ذکر کا نام اور صفر سے بڑا عدد درج کریں", Français: "Veuillez saisir un Dhikr et un nombre supérieur à zéro", Deutsch: "Bitte Dhikr-Namen und eine Zahl größer als Null eingeben", Русский: "Введите название зикра и число больше нуля", Español: "Ingresa un Dhikr y un número mayor que cero", हिन्दी: "कृपया ज़िक्र का नाम और शून्य से बड़ी संख्या दर्ज करें", Indonesia: "Masukkan nama dzikir dan angka lebih dari nol" },
   goalCompletedSuccess: { English: "Goal Completed Successfully ✓", العربية: "تم إنهاء الهدف بنجاح ✓", اردو: "ہدف کامیابی سے مکمل ہو گیا ✓", Français: "Objectif terminé avec succès ✓", Deutsch: "Ziel erfolgreich abgeschlossen ✓", Русский: "Цель успешно достигнута ✓", Español: "Meta completada con éxito ✓", हिन्दी: "लक्ष्य सफलतापूर्वक पूरा हुआ ✓", Indonesia: "Target Berhasil Diselesaikan ✓" },
   myGoalsTitle: { English: "My Goals", العربية: "أهدافي", اردو: "میرے اہداف", Français: "Mes Objectifs", Deutsch: "Meine Ziele", Русский: "Мои цели", Español: "Mis Metas", हिन्दी: "मेरे लक्ष्य", Indonesia: "Target Saya" },
-  noSavedGoalsYet: { English: "No completed goals yet. Set a goal and complete it to save it here.", العربية: "لا توجد أهداف مكتملة بعد. حدد هدفاً وأكمله ليُحفظ هنا.", اردو: "ابھی تک کوئی مکمل ہدف نہیں ہے۔ ہدف مقرر کریں اور مکمل کریں۔", Français: "Aucun objectif terminé pour le moment.", Deutsch: "Noch keine abgeschlossenen Ziele gespeichert.", Русский: "Пока нет завершённых целей. Задайте и выполните цель.", Español: "Aún no hay metas completadas.", हिन्दी: "अभी तक कोई पूरा किया गया लक्ष्य नहीं है।", Indonesia: "Belum ada target selesai. Atur & selesaikan target." },
+  goalInProgressLabel: { English: "In Progress", العربية: "قيد التنفيذ", اردو: "جاری ہے", Français: "En cours", Deutsch: "Läuft", Русский: "В процессе", Español: "En curso", हिन्दी: "चालू", Indonesia: "Berjalan" },
+  goalDoneLabel: { English: "Completed", العربية: "مكتمل", اردو: "مکمل", Français: "Terminé", Deutsch: "Abgeschlossen", Русский: "Выполнено", Español: "Completado", हिन्दी: "पूर्ण", Indonesia: "Selesai" },
+  noSavedGoalsYet: { English: "No custom goals yet. Enter a Dhikr and press Start Goal.", العربية: "لا توجد أهداف مخصصة بعد. اكتب الذكر واضغط بدء الهدف.", اردو: "ابھی تک کوئی مخصوص ہدف نہیں ہے۔ ذکر لکھیں اور شروع کریں۔", Français: "Aucun objectif personnalisé pour le moment.", Deutsch: "Noch keine eigenen Ziele vorhanden.", Русский: "Пока нет целей. Введите зикр и нажмите Начать цель.", Español: "Aún no hay metas personalizadas.", हिन्दी: "अभी तक कोई कस्टम लक्ष्य नहीं है।", Indonesia: "Belum ada target khusus. Tulis dzikir & mulai." },
   repeatGoalBtn: { English: "Repeat", العربية: "تكرار", اردو: "دہرائیں", Français: "Répéter", Deutsch: "Wiederholen", Русский: "Повторить", Español: "Repetir", हिन्दी: "दोहराएं", Indonesia: "Ulangi" },
   hapticFeedbackLabel: { English: "Haptic Vibration", العربية: "الاهتزاز اللمسي (Haptic)", اردو: "لمسی ارتعاش (Haptic)", Français: "Vibration tactile (Haptic)", Deutsch: "Haptisches Feedback", Русский: "Тактильная вибрация", Español: "Vibración háptica", हिन्दी: "स्पर्श कंपन (Haptic)", Indonesia: "Getaran Haptik" },
   ringSizeLabel: { English: "Tasbeeh Ring Size", العربية: "حجم حلقة التسبيح", اردو: "تسبیح کے دائرے کا سائز", Français: "Taille de l'anneau", Deutsch: "Ringgröße", Русский: "Размер кольца", Español: "Tamaño del anillo", हिन्दी: "तस्बीह रिंग का आकार", Indonesia: "Ukuran Lingkaran Tasbih" },
@@ -277,7 +291,6 @@ const uiMap = {
   },
 
   // خيارات ظهور نصوص الدليل
-  textDisplayOptions: { English: "Guide Text Display", العربية: "ظهور نصوص الدليل", اردو: "متن کے ظاہر ہونے کی ترتیبات", Français: "Affichage des textes", Deutsch: "Textanzeige des Leitfadens", Русский: "Отображение текстов", Español: "Visualización de textos", हिन्दी: "गाइड टेक्स्ट दृश्यता", Indonesia: "Tampilan Teks Panduan" },
   arabicScript: { English: "Arabic", العربية: "النص العربي", اردو: "عربی متن", Français: "Texte arabe", Deutsch: "Arabischer Text", Русский: "Арабский текст", Español: "Texto árabe", हिन्दी: "अरबी पाठ", Indonesia: "Teks Arab" },
   translitScript: { English: "Transliteration", العربية: "النطق اللاتيني", اردو: "رومن تلفظ", Français: "Translittération", Deutsch: "Transkription", Русский: "Транслитерация", Español: "Transliteración", हिन्दी: "रोमन उच्चारण", Indonesia: "Transliterasi" },
   meaningTrans: { English: "Translation", العربية: "الترجمة", اردو: "ترجمہ", Français: "Traduction", Deutsch: "Übersetzung", Русский: "Перевод", Español: "Traducción", हिन्दी: "अनुवाद", Indonesia: "Terjemahan" }
@@ -301,15 +314,15 @@ const hintDetails = {
       Indonesia: "Usap Layar"
     },
     desc: {
-      English: "Swipe left or right across the card to navigate between Takbeers. Swiping right-to-left advances to the next step, while swiping left-to-right returns to previous. An extra forward swipe on the 4th Takbeer ends the prayer automatically.",
-      العربية: "اسحب إصبعك عبر بطاقة التكبيرة للانتقال المباشر. السحب من اليمين لليسار ينتقل للتكبيرة التالية ومن اليسار لليمين يرجع للسابقة. السحب الإضافي للأمام بعد التكبيرة الرابعة ينهي جلسة الصلاة تلقائياً.",
-      اردو: "تکبیر کے کارڈ پر انگلی سوائپ کر کے اگلی یا پچھلی تکبیر پر جائیں۔ چوتھی تکبیر کے بعد ایک اضافی سوائپ خودکار طور پر نماز ختم کر دے گا۔",
-      Français: "Glissez votre doigt sur la carte pour passer d'un takbir à l'autre. Un glissement supplémentaire au 4ème takbir termine la prière.",
-      Deutsch: "Wischen Sie über die Karte, um zwischen den Takbiren zu wechseln. Ein zusätzliches Wischen beim 4. Takbir beendet das Gebet automatisch.",
-      Русский: "Смахните по карточке для перехода между такбирами. Дополнительное смахивание на 4-м такбире завершает молитву.",
-      Español: "Desliza el dedo sobre la tarjeta para avanzar o retroceder. Un deslizamiento adicional en el 4º takbir finaliza la oración.",
-      हिन्दी: "तकबीरों के बीच जाने के लिए कार्ड पर स्वाइप करें। चौथी तकबीर के बाद एक अतिरिक्त स्वाइप नमाज़ को स्वतः समाप्त कर देगा।",
-      Indonesia: "Usap jari di atas kartu untuk berpindah takbir. Usapan ekstra pada takbir ke-4 akan mengakhiri shalat secara otomatis."
+      English: "Swipe across the card to navigate between Takbeers. In LTR languages, swiping right-to-left advances and left-to-right goes back. In Arabic/RTL, swiping left-to-right advances and right-to-left goes back.",
+      العربية: "اسحب إصبعك عبر بطاقة التكبيرة للانتقال المباشر. في اللغة العربية: السحب من اليسار لليمين يتقدم للتكبيرة التالية، والسحب من اليمين لليسار يرجع للتكبيرة السابقة. وفي اللغات الأجنبية يكون العكس تماماً.",
+      اردو: "تکبیر کے کارڈ پر انگلی سوائپ کر کے اگلی یا پچھلی تکبیر پر جائیں۔ دائیں سے بائیں اور بائیں سے دائیں سوائپ زبان کی سمت کے مطابق کام کرتا ہے۔",
+      Français: "Glissez votre doigt sur la carte pour passer d'un takbir à l'autre selon le sens de lecture de la langue.",
+      Deutsch: "Wischen Sie über die Karte, um zwischen den Takbiren entsprechend der Leserichtung zu wechseln.",
+      Русский: "Смахните по карточке для перехода между такбирами в соответствии с направлением языка.",
+      Español: "Desliza el dedo sobre la tarjeta para avanzar o retroceder según la dirección del idioma.",
+      हिन्दी: "तकबीरों के बीच जाने के लिए कार्ड पर स्वाइप करें।",
+      Indonesia: "Usap jari di atas kartu untuk berpindah takbir sesuai arah bahasa."
     }
   },
   shake: {
@@ -326,15 +339,15 @@ const hintDetails = {
       Indonesia: "Guncang Perangkat"
     },
     desc: {
-      English: "Gently shake your phone to advance to the next Takbeer. The sensor is paused for 5 seconds when starting prayer to let you settle, ignores shakes during screen touches, and operates within safe sensitivity (7 - 25).",
-      العربية: "قم بهز الهاتف هزة خفيفة ومعتدلة بيدك للانتقال تلقائياً للتكبيرة التالية. يتم إيقاف المستشعر تماماً لمدة 5 ثوانٍ عند بدء الصلاة حتى يستقر الهاتف بيدك، كما يتم تجاهل الاهتزاز أثناء لمس الشاشة بالأصابع، مع حساسية مضبوطة تبدأ من 7 كحد فائق الحساسية إلى 25.",
-      اردو: "فون کو ہلکا سا ہلا کر اگلی تکبیر پر جائیں۔ نماز شروع ہوتے ہی سینسر 5 سیکنڈ کے لیے توقف کرتا ہے اور اسکرین چھوتے وقت حرکت کو نظر انداز کرتا ہے۔",
-      Français: "Secouez doucement votre téléphone. Le capteur est mis en pause pendant 5 secondes au début, ignore les mouvements pendant les touches tactiles et propose une sensibilité de 7 à 25.",
-      Deutsch: "Schütteln Sie das Telefon sanft. Der Sensor pausiert beim Gebetsstart für 5 Sekunden, ignoriert Erschütterungen bei Bildschirmberührung und bietet Empfindlichkeit von 7 bis 25.",
-      Русский: "Слегка встряхните телефон. Датчик блокируется на первые 5 секунд молитвы, игнорирует потряхивания во время касания экрана и настраивается от 7 до 25.",
-      Español: "Agita suavemente el teléfono. El sensor se pausa 5 segundos al iniciar la oración, ignora movimientos al tocar la pantalla y ofrece sensibilidad de 7 a 25.",
-      हिन्दी: "फ़ोन को हल्के से हिलाएं। नमाज़ शुरू होने पर सेंसर 5 सेकंड रुकता है और स्क्रीन छूते समय झटकों को नज़रअंदाज़ करता है।",
-      Indonesia: "Guncang ponsel dengan lembut. Sensor dijeda 5 detik saat awal shalat, mengabaikan goyangan saat layar disentuh, dengan sensitivitas 7 - 25."
+      English: "Gently shake your phone in any direction to advance to the next Takbeer. The sensor is paused for 5 seconds when starting prayer and completely ignores shakes while touching the screen, with sensitivity adjustable from 11 to 25.",
+      العربية: "قم بهز الهاتف في أي اتجاه للانتقال تلقائياً للتكبيرة التالية. يتم عزل المستشعر تماماً أثناء لمس الشاشة بالأصابع ولمدة 5 ثوانٍ عند بدء الصلاة، مع حساسية قابلة للضبط من 11 وحتى 25.",
+      اردو: "فون کو کسی بھی سمت ہلکا سا ہلا کر اگلی تکبیر پر جائیں۔ نماز شروع ہوتے ہی سینسر 5 سیکنڈ کے لیے رکتا ہے اور اسکرین چھوتے وقت حرکت کو نظر انداز کرتا ہے (حساسیت 11 سے 25)۔",
+      Français: "Secouez doucement votre téléphone dans n'importe quelle direction. Le capteur est isolé pendant 5 secondes au début et lors du toucher (sensibilité de 11 à 25).",
+      Deutsch: "Schütteln Sie das Telefon sanft in beliebiger Richtung. Der Sensor pausiert 5 Sekunden beim Start und ignoriert Berührungen (Empfindlichkeit 11 bis 25).",
+      Русский: "Слегка встряхните телефон в любом направлении. Датчик блокируется на 5 секунд при старте и во время касания экрана (чувствительность от 11 до 25).",
+      Español: "Agita suavemente el teléfono en cualquier dirección. El sensor se aísla durante 5 segundos al inicio y al tocar la pantalla (sensibilidad de 11 a 25).",
+      हिन्दी: "फ़ोन को किसी भी दिशा में हल्के से हिलाएं। नमाज़ शुरू होने पर 5 सेकंड और स्क्रीन छूते समय सेंसर बंद रहता है (संवेदनशीलता 11 से 25)।",
+      Indonesia: "Guncang ponsel ke arah mana saja. Sensor dijeda 5 detik saat mulai dan saat layar disentuh (sensitivitas 11 hingga 25)."
     }
   },
   voice: {
@@ -376,15 +389,15 @@ const hintDetails = {
       Indonesia: "Tombol Layar"
     },
     desc: {
-      English: "Displays custom on-screen navigation buttons. You can customize them live inside the actual prayer session: switch between single or dual buttons, drag each button independently or locked together across the screen, and set individual positions per Takbeer.",
-      العربية: "يُظهر أزرار تنقل أنيقة فوق الشاشة. يمكنك تخصيصها عبر شريط الأدوات الحي المباشر داخل الصلاة: اختيار نمط الزر الواحد أو الزرين، سحب كل زر بمفرده أو قفلهما معاً بحرية في الشاشة، وحفظ موضع وحجم وشفافية مخصصة لكل تكبيرة على حدة.",
-      اردو: "اسکرین پر بٹن دکھاتا ہے۔ آپ نماز کے دوران لائیو ٹول بار سے بٹنوں کا سائز، شفافیت، ایک یا دو بٹن، اور ہر تکبیر کے لیے الگ الگ جگہ ترتیب دے سکتے ہیں۔",
-      Français: "Affiche des boutons de navigation personnalisables en direct pendant la prière: un ou deux boutons, déplacement indépendant ou verrouillé, et position par takbir.",
-      Deutsch: "Zeigt Bildschirmschaltflächen an, die direkt während des Gebets angepasst werden können: Einzel- oder Doppeltaste, getrenntes Ziehen und individuelle Position pro Takbir.",
-      Русский: "Отображает экранные кнопки с живой настройкой прямо в молитве: один или два контроллера, раздельное перетаскивание и сохранение позиций для каждого такбира.",
-      Español: "Muestra botones en pantalla personalizables en vivo durante la oración: modo simple o doble, arrastre independiente o bloqueado y posición personalizada por takbir.",
-      हिन्दी: "स्क्रीन बटन प्रदर्शित करता है। आप नमाज़ के दौरान ही लाइव टूलबार से एक या दो बटन, उनका स्थान और आकार हर तकबीर के लिए अलग सेट कर सकते हैं।",
-      Indonesia: "Menampilkan tombol di layar yang dapat disesuaikan langsung selama shalat: mode satu atau dua tombol, seret terpisah atau terkunci, dan posisi per takbir."
+      English: "Displays custom on-screen navigation buttons. You can customize them live inside the actual prayer session: drag the floating toolbar anywhere, switch between single or dual buttons, drag each button independently or locked together within safe boundaries, and set individual positions per Takbeer.",
+      العربية: "يُظهر أزرار تنقل أنيقة فوق الشاشة. يمكنك تخصيصها عبر شريط الأدوات العائم القابل للسحب في أي مكان على الشاشة: اختيار نمط الزر الواحد أو الزرين، سحب كل زر بمفرده أو قفلهما معاً داخل منطقة الأمان، وحفظ موضع وحجم وشفافية مخصصة لكل تكبيرة على حدة.",
+      اردو: "اسکرین پر بٹن دکھاتا ہے۔ آپ نماز کے دوران تیرتے ٹول بار سے بٹنوں کا سائز، شفافیت، ایک یا دو بٹن، اور ہر تکبیر کے لیے الگ الگ جگہ ترتیب دے سکتے ہیں۔",
+      Français: "Affiche des boutons personnalisables en direct pendant la prière via une barre flottante déplaçable.",
+      Deutsch: "Zeigt Bildschirmschaltflächen an, die direkt über eine verschiebbare Symbolleiste angepasst werden können.",
+      Русский: "Отображает экранные кнопки с живой настройкой через перетаскиваемую панель инструментов.",
+      Español: "Muestra botones en pantalla personalizables en vivo mediante una barra flotante desplazable.",
+      हिन्दी: "स्क्रीन बटन प्रदर्शित करता है जिन्हें फ्लोटिंग टूलबार से लाइव कस्टमाइज़ किया जा सकता है।",
+      Indonesia: "Menampilkan tombol di layar yang dapat disesuaikan langsung melalui bilah alat mengambang."
     }
   }
 };
