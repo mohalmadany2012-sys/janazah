@@ -114,11 +114,11 @@ let exitConfirmPending = false;
 let exitConfirmTimer = null;
 let pendingTabAfterExit = null;
 
-// مستشعر الاهتزاز
+// مستشعر الاهتزاز (الحد الأدنى 9 وحتى 25)
 let speechRecognizer = null;
 let lastShakeTime = 0;
 let shakeSensorBound = false;
-let shakeMotionThreshold = Math.max(11, Math.min(25, parseInt(localStorage.getItem("nav_shakeThreshold"), 10) || 13));
+let shakeMotionThreshold = Math.max(9, Math.min(25, parseInt(localStorage.getItem("nav_shakeThreshold"), 10) || 13));
 let shakeCoolDownActive = false;
 let isTouchingScreen = false;
 
@@ -127,7 +127,7 @@ let swipeStartX = null;
 let swipeStartY = null;
 let extraSwipeCount = 0;
 
-// التعرف الصوتي (Debounce 1.5 ثانية)
+// التعرف الصوتي (Debounce 1.5 ثانية مع مطابقة النتائج النهائية المؤكدة فقط)
 let lastVoiceCommandTime = 0;
 const VOICE_DEBOUNCE_DELAY = 1500;
 
@@ -141,7 +141,6 @@ let tasbeehMyGoals = JSON.parse(localStorage.getItem("tasbeeh_my_goals")) || [];
 let tasbeehGoalCompletedFlag = false;
 let tasbeehHaptic = localStorage.getItem("tasbeeh_haptic") !== "false";
 let tasbeehRingSize = parseInt(localStorage.getItem("tasbeeh_ring_size"), 10) || 200;
-let isPipActive = false;
 
 /* ==========================================================================
    1. المظهر التلقائي الحي والخطوط والألوان (Live Auto-Theme & Scales)
@@ -168,8 +167,6 @@ function applyTheme() {
     if (btn.dataset.theme === currentThemeMode) btn.classList.add("active");
     else btn.classList.remove("active");
   });
-
-  if (isPipActive) renderTasbeehPipCanvas();
 }
 
 function initThemeSystemListener() {
@@ -239,7 +236,6 @@ function setAccentColor(hex, save = true) {
   if (metaTheme) metaTheme.setAttribute("content", hex);
   if (save) localStorage.setItem("userAccent", hex);
   updateUI();
-  if (isPipActive) renderTasbeehPipCanvas();
 }
 
 function updateDirection() {
@@ -432,11 +428,10 @@ function openUnifiedGuideTextCustomizer() {
     document.getElementById("liveCustomizerToolbar").style.display = "none";
   }
 
-  // ضبط القيم الافتراضية المبدئية عند الفتح إذا لم يسبق تخصيصها يدوياً
   if (!customTextScales.active) {
-    customTextScales.arabic = 1.95;   // العربي كبير
-    customTextScales.translit = 1.15; // اللاتيني في المنتصف
-    customTextScales.trans = 1.45;    // الترجمة متوسطة كبيرة
+    customTextScales.arabic = 1.95;
+    customTextScales.translit = 1.15;
+    customTextScales.trans = 1.45;
     applyCustomTextVariables();
   }
 
@@ -449,7 +444,7 @@ function openUnifiedGuideTextCustomizer() {
   const toolbar = document.getElementById("liveTextCustomizerToolbar");
   if (toolbar) {
     toolbar.style.display = "block";
-    toolbar.style.top = "56px";
+    toolbar.style.top = "52px";
     toolbar.style.left = "50%";
     toolbar.style.transform = "translateX(-50%)";
   }
@@ -490,6 +485,15 @@ function syncTextCustomizerControls() {
     btnTrn.classList.toggle("active", textVisibility.translation);
     btnTrn.innerText = `${textVisibility.translation ? "✓ " : ""}${t("meaningTrans", "الترجمة")}`;
   }
+
+  // الإخفاء الشرطي لصفوف منزلقات حجم النصوص عند إغلاق النص الخاص بها
+  const rowAr = document.getElementById("rowCustArabicSize");
+  const rowTrl = document.getElementById("rowCustTranslitSize");
+  const rowTrn = document.getElementById("rowCustTransSize");
+
+  if (rowAr) rowAr.style.display = textVisibility.arabic ? "flex" : "none";
+  if (rowTrl) rowTrl.style.display = textVisibility.translit ? "flex" : "none";
+  if (rowTrn) rowTrn.style.display = textVisibility.translation ? "flex" : "none";
 
   const rngAr = document.getElementById("rngCustArabicSize");
   const rngTrl = document.getElementById("rngCustTranslitSize");
@@ -552,7 +556,7 @@ function saveAndExitTextCustomizer() {
 }
 
 /* ==========================================================================
-   5. مستشعر الحركة (Shake) والتعرف الصوتي والتقليب باللمس (RTL & LTR)
+   5. مستشعر الحركة (Shake) والتعرف الصوتي الصارم والتقليب باللمس (RTL & LTR)
    ========================================================================== */
 function handleDeviceMotion(event) {
   if (!isPrayerActive || !navConfig.shake || isLiveCustomizing || isLiveTextCustomizing) return;
@@ -568,7 +572,6 @@ function handleDeviceMotion(event) {
   const y = acc.y || 0;
   const z = acc.z || 0;
 
-  // التقاط أي حركة اهتزاز عامة للهاتف في أي اتجاه
   const magnitude = Math.sqrt(x * x + y * y + z * z);
 
   if (magnitude > shakeMotionThreshold) {
@@ -614,7 +617,7 @@ function startVoiceRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     speechRecognizer = new SpeechRecognition();
     speechRecognizer.continuous = true;
-    speechRecognizer.interimResults = true;
+    speechRecognizer.interimResults = false; // منع الاستجابة للنتائج المؤقتة والضوضاء العابرة
     speechRecognizer.lang = "ar-SA";
 
     speechRecognizer.onresult = event => {
@@ -622,21 +625,27 @@ function startVoiceRecognition() {
       const currentTime = Date.now();
 
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        const transcript = event.results[i][0].transcript.trim().toLowerCase();
+        // اشتراط أن تكون النتيجة نهائية مؤكدة فقط
+        if (!event.results[i].isFinal) continue;
+
+        const transcript = event.results[i][0].transcript
+          .trim()
+          .replace(/[\u064B-\u065F\u0670]/g, "")
+          .replace(/[أإآ]/g, "ا")
+          .toLowerCase();
 
         if (currentTime - lastVoiceCommandTime < VOICE_DEBOUNCE_DELAY) continue;
 
-        if (
-          transcript.includes("الله أكبر") ||
-          transcript.includes("الله اكبر") ||
-          transcript.includes("اكبر")
-        ) {
+        // مطابقة صريحة لعبارة "الله أكبر" أو "الله اكبر"
+        if (transcript.includes("الله اكبر")) {
           if (currentStep < 3) {
             lastVoiceCommandTime = currentTime;
             goToStep(currentStep + 1);
           }
+          break;
         }
 
+        // الإنهاء التلقائي عند التسليم في التكبيرة الرابعة
         if (currentStep === 3 && navConfig.autoEndTasleem) {
           if (
             transcript.includes("السلام عليكم") ||
@@ -700,8 +709,6 @@ function handleTouchEnd(e) {
 
   if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
     const isRtl = document.documentElement.getAttribute("dir") === "rtl";
-    // في وضع العربية (RTL): السحب من اليسار لليمين (diffX > 0) يتقدم، ومن اليمين لليسار (diffX < 0) يرجع
-    // في اللغات الأجنبية (LTR): السحب من اليمين لليسار (diffX < 0) يتقدم، ومن اليسار لليمين (diffX > 0) يرجع
     const isForward = isRtl ? diffX > 0 : diffX < 0;
     const isBackward = isRtl ? diffX < 0 : diffX > 0;
 
@@ -792,7 +799,7 @@ function openLiveCustomizer() {
   const toolbar = document.getElementById("liveCustomizerToolbar");
   if (toolbar) {
     toolbar.style.display = "block";
-    toolbar.style.top = "56px";
+    toolbar.style.top = "52px";
     toolbar.style.left = "50%";
     toolbar.style.transform = "translateX(-50%)";
   }
@@ -1105,7 +1112,7 @@ function renderOnScreenControls() {
   }
 }
 
-/* منطقة الأمان لتحريك الأزرار (منع التداخل مع زر إنهاء الصلاة بالأعلى وشريط التنقل بالأسفل والحواف الجانبية) */
+/* منطقة الأمان لتحريك الأزرار */
 function initDragHandler(element, onPositionUpdate) {
   let isDragging = false;
 
@@ -1117,7 +1124,6 @@ function initDragHandler(element, onPositionUpdate) {
     const halfW = (rect.width || 64) / 2;
     const halfH = (rect.height || 56) / 2;
 
-    // حساب حدود منطقة الأمان بالبكسل ثم تحويلها لنسب مئوية دقيقة
     const topBarEl = document.getElementById("prayerSessionTopBar");
     const bottomNavEl = document.getElementById("bottomNav");
 
@@ -1203,7 +1209,6 @@ function confirmExitFromToast() {
 window.addEventListener("popstate", () => {
   if (isPrayerActive && !isLiveCustomizing && !isLiveTextCustomizing) {
     if (exitConfirmPending) {
-      // الضغط الثاني المتتالي على زر الرجوع يخرج فوراً
       hideExitPrayerConfirmationToast();
       exitPrayerSession(false, true);
     } else {
@@ -1219,21 +1224,17 @@ function startPrayerSession(silentMode = false) {
   extraSwipeCount = 0;
   hideExitPrayerConfirmationToast();
 
-  // تفعيل منع انطفاء الشاشة أثناء الصلاة
   requestPrayerWakeLock();
 
-  // تسجيل حالة في سجل المتصفح لاعتراض زر الرجوع
   try {
     history.pushState({ prayerSession: true }, "");
   } catch (e) {}
 
-  // عزل مستشعر الاهتزاز لمدة 5 ثوانٍ عند بدء الصلاة
   shakeCoolDownActive = true;
   setTimeout(() => {
     shakeCoolDownActive = false;
   }, 5000);
 
-  // نبضة اهتزاز تفاعلية مطمئنة عند الضغط على "ابدأ صلاة الجنازة"
   if (!silentMode) {
     triggerPrayerVibration([60, 40, 60]);
   }
@@ -1251,7 +1252,6 @@ function startPrayerSession(silentMode = false) {
 }
 
 function exitPrayerSession(isCompleted = false, forceImmediate = false) {
-  // إذا كانت الجلسة نشطة وطُلب الخروج دون إتمام ولم يكن قسرياً، نطلب التأكيد إلا إذا ضغط المستخدم زر إنهاء الصلاة المباشر
   if (!forceImmediate && !isCompleted && isPrayerActive && !isLiveCustomizing && !isLiveTextCustomizing) {
     showExitPrayerConfirmationToast(null);
     return;
@@ -1301,7 +1301,7 @@ function showCompletionBanner() {
 }
 
 /* ==========================================================================
-   8. السبحة الإلكترونية المبتكرة (Mini-Widget + PiP + قائمة أهدافي)
+   8. السبحة الإلكترونية المبتكرة (Mini-Widget + Android Floating Bridge + قائمة أهدافي)
    ========================================================================== */
 function openTasbeehFullScreen() {
   const modal = document.getElementById("tasbeehFullScreenModal");
@@ -1387,7 +1387,6 @@ function applyCustomTasbeehGoal() {
   tasbeehGoalCompletedFlag = false;
   tasbeehActiveGoalId = newGoalId;
 
-  // إضافة الهدف فوراً إلى قائمة "أهدافي" كهدف نشط (قيد التنفيذ)
   tasbeehMyGoals.unshift({
     id: newGoalId,
     dhikr: cleanDhikr,
@@ -1403,7 +1402,6 @@ function applyCustomTasbeehGoal() {
   localStorage.setItem("tasbeeh_active_goal_id", tasbeehActiveGoalId);
   localStorage.setItem("tasbeeh_my_goals", JSON.stringify(tasbeehMyGoals));
 
-  // تفريغ حقول الإدخال فوراً
   if (dhikrInput) dhikrInput.value = "";
   if (numInput) numInput.value = "";
 
@@ -1640,7 +1638,6 @@ function updateTasbeehUI() {
     if (myGoalsSec) myGoalsSec.style.display = "none";
   }
 
-  // تحديث حلقة التقدم في الشاشة الكاملة والـ Mini-Widget معاً
   let ratio = (tasbeehCount % 33) / 33;
   if (tasbeehMode === "custom" && tasbeehTarget > 0) {
     ratio = Math.min(1, tasbeehCount / tasbeehTarget);
@@ -1667,134 +1664,36 @@ function updateTasbeehUI() {
   }
   const chkHaptic = document.getElementById("chkTasbeehHaptic");
   if (chkHaptic) chkHaptic.checked = tasbeehHaptic;
-
-  if (isPipActive) renderTasbeehPipCanvas();
 }
 
-/* رسم حلقة التسبيح واللون والعداد بدقة عالية داخل Canvas لوضع PiP */
-function renderTasbeehPipCanvas() {
-  const canvas = document.getElementById("tasbeehPipCanvas");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  const w = canvas.width;
-  const h = canvas.height;
-  const isDark = document.body.classList.contains("dark");
+/* جسر السبحة العائمة فوق التطبيقات الأخرى (Android Floating Bridge) */
+function launchExternalFloatingTasbeeh() {
+  const payload = {
+    count: tasbeehCount,
+    target: tasbeehMode === "custom" ? tasbeehTarget : 0,
+    dhikr: tasbeehMode === "custom" ? tasbeehActiveDhikr : "",
+    accentColor: userAccent || "#0284C7",
+    ringSize: tasbeehRingSize || 200,
+    haptic: tasbeehHaptic
+  };
 
-  ctx.clearRect(0, 0, w, h);
-
-  // خلفية متناسقة مع وضع المظهر
-  ctx.fillStyle = isDark ? "#070A0F" : "#F8FAFC";
-  ctx.fillRect(0, 0, w, h);
-
-  // هالة خفيفة بلون التطبيق
-  const cx = w / 2;
-  const cy = h / 2;
-  const grad = ctx.createRadialGradient(cx, cy, 20, cx, cy, 160);
-  grad.addColorStop(0, isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)");
-  grad.addColorStop(1, "transparent");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
-
-  // حلقة الخلفية
-  const radius = 132;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.strokeStyle = isDark ? "rgba(148, 163, 184, 0.2)" : "rgba(15, 23, 42, 0.12)";
-  ctx.lineWidth = 16;
-  ctx.stroke();
-
-  // نسبة التقدم
-  let ratio = (tasbeehCount % 33) / 33;
-  if (tasbeehMode === "custom" && tasbeehTarget > 0) {
-    ratio = Math.min(1, tasbeehCount / tasbeehTarget);
-  } else if (tasbeehCount > 0 && ratio === 0) {
-    ratio = 1;
-  }
-
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + ratio * Math.PI * 2);
-  ctx.strokeStyle = userAccent || "#0284C7";
-  ctx.lineWidth = 16;
-  ctx.lineCap = "round";
-  ctx.stroke();
-
-  // اسم الذكر في الأعلى
-  ctx.fillStyle = isDark ? "#94a3b8" : "#475569";
-  ctx.font = "bold 22px 'Noto Sans Arabic', sans-serif";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  const topLabel =
-    tasbeehMode === "custom" && tasbeehActiveDhikr
-      ? tasbeehActiveDhikr
-      : t("tasbeehOfficialTitle", "السبحة الإلكترونية");
-  ctx.fillText(topLabel, cx, cy - 58);
-
-  // العداد الرئيسي في المنتصف
-  ctx.fillStyle = isDark ? "#f8fafc" : "#0f172a";
-  ctx.font = "800 76px 'Inter', sans-serif";
-  ctx.fillText(String(tasbeehCount), cx, cy + 6);
-
-  // الهدف في الأسفل
-  ctx.fillStyle = userAccent || "#0284C7";
-  ctx.font = "bold 22px 'Noto Sans Arabic', sans-serif";
-  const bottomLabel =
-    tasbeehMode === "custom" && tasbeehTarget > 0
-      ? `${tasbeehCount} / ${tasbeehTarget}`
-      : "∞";
-  ctx.fillText(bottomLabel, cx, cy + 68);
-}
-
-async function toggleTasbeehPiP() {
-  const video = document.getElementById("tasbeehPipVideo");
-  const canvas = document.getElementById("tasbeehPipCanvas");
-
-  if (!video || !canvas || !document.pictureInPictureEnabled) {
-    minimizeTasbeehToFloating();
-    return;
-  }
-
-  try {
-    if (document.pictureInPictureElement) {
-      await document.exitPictureInPicture();
-      isPipActive = false;
+  if (window.AndroidBridge && typeof window.AndroidBridge.startFloatingTasbeeh === "function") {
+    try {
+      window.AndroidBridge.startFloatingTasbeeh(JSON.stringify(payload));
+      showToastAlert(t("floatingOverlayActivated", "تم تفعيل النافذة العائمة للسبحة فوق التطبيقات ✓"));
       return;
+    } catch (err) {
+      console.error("AndroidFloatingBridge error:", err);
     }
-
-    renderTasbeehPipCanvas();
-    if (!video.srcObject) {
-      const stream = canvas.captureStream(20);
-      video.srcObject = stream;
-    }
-    await video.play();
-    await video.requestPictureInPicture();
-    isPipActive = true;
-
-    if ("mediaSession" in navigator) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: tasbeehActiveDhikr || t("tasbeehOfficialTitle", "السبحة الإلكترونية"),
-        artist: t("splashAppTitle", "دليل الجنازة")
-      });
-      navigator.mediaSession.setActionHandler("play", () => {
-        handleTasbeehClick();
-      });
-      navigator.mediaSession.setActionHandler("pause", () => {
-        handleTasbeehClick();
-      });
-      navigator.mediaSession.setActionHandler("nexttrack", () => {
-        handleTasbeehClick();
-      });
-    }
-
-    video.onleavepictureinpicture = () => {
-      isPipActive = false;
-    };
-  } catch (err) {
-    minimizeTasbeehToFloating();
   }
+
+  // في حال التشغيل داخل متصفح عادي بدون جسر أندرويد نفعّل التصغير الداخلي مع تنبيه أنيق
+  minimizeTasbeehToFloating();
+  showToastAlert(t("floatingOverlayActivated", "تم تفعيل السبحة العائمة المصغرة ✓"));
 }
 
 /* ==========================================================================
-   9. فتح الـ 200 لون إضافي وشبكة التمرير
+   9. فتح الـ 400 لون إضافي وشبكة التمرير
    ========================================================================== */
 function openCustomColor(fromOnboarding = false) {
   const palette = document.getElementById("premiumColorPalette");
@@ -1802,24 +1701,23 @@ function openCustomColor(fromOnboarding = false) {
   palette.innerHTML = "";
 
   const countBadge = document.getElementById("customColorCountBadge");
-  if (countBadge) countBadge.innerText = t("twoHundredColorsBadge", "200 لون");
+  if (countBadge) countBadge.innerText = t("fourHundredColorsBadge", "400 لون");
 
-  if (typeof allTwoHundredColors !== "undefined") {
-    allTwoHundredColors.forEach(color => {
-      const circle = document.createElement("div");
-      circle.className = "color-circle";
-      if (color.toUpperCase() === userAccent.toUpperCase()) circle.classList.add("active");
-      circle.style.backgroundColor = color;
-      circle.onclick = () => {
-        setAccentColor(color, true);
-        if (fromOnboarding) {
-          document.querySelectorAll("#onboardColorPalette .color-circle").forEach(c => c.classList.remove("active"));
-        }
-        closeModal();
-      };
-      palette.appendChild(circle);
-    });
-  }
+  const colorsList = typeof allFourHundredColors !== "undefined" ? allFourHundredColors : [];
+  colorsList.forEach(color => {
+    const circle = document.createElement("div");
+    circle.className = "color-circle";
+    if (color.toUpperCase() === userAccent.toUpperCase()) circle.classList.add("active");
+    circle.style.backgroundColor = color;
+    circle.onclick = () => {
+      setAccentColor(color, true);
+      if (fromOnboarding) {
+        document.querySelectorAll("#onboardColorPalette .color-circle").forEach(c => c.classList.remove("active"));
+      }
+      closeModal();
+    };
+    palette.appendChild(circle);
+  });
   document.getElementById("customColorModal").classList.add("active");
 }
 
@@ -1925,13 +1823,13 @@ function populateSettingsPanel() {
           <input type="checkbox" id="chkShake" class="custom-checkbox" ${navConfig.shake ? "checked" : ""} onchange="toggleNavOption('shake', this.checked)">
         </div>
       </div>
-      <!-- شريط حساسية الاهتزاز من 11 وحتى 25 -->
+      <!-- شريط حساسية الاهتزاز من 9 وحتى 25 -->
       <div id="shakeSensitivityRow" style="display: ${navConfig.shake ? "block" : "none"}; padding: 0 12px 14px; border-bottom: 1px solid rgba(128,128,128,0.08);">
          <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
            <div><span class="bidi-safe">${t("shakeForceRequired", "قوة الاهتزاز المطلوبة")}</span><span class="colon-sep">:</span></div>
            <span id="shakeThresholdVal" class="bidi-safe">${shakeMotionThreshold} (${getShakeSensitivityDesc(shakeMotionThreshold)})</span>
          </div>
-         <input type="range" min="11" max="25" value="${shakeMotionThreshold}" oninput="updateShakeThreshold(this.value)" style="width: 100%; accent-color: var(--accent);">
+         <input type="range" min="9" max="25" value="${shakeMotionThreshold}" oninput="updateShakeThreshold(this.value)" style="width: 100%; accent-color: var(--accent);">
       </div>
 
       <!-- الصوت -->
@@ -2009,7 +1907,7 @@ function populateSettingsPanel() {
 }
 
 function updateShakeThreshold(val) {
-  shakeMotionThreshold = Math.max(11, Math.min(25, parseInt(val, 10)));
+  shakeMotionThreshold = Math.max(9, Math.min(25, parseInt(val, 10)));
   localStorage.setItem("nav_shakeThreshold", shakeMotionThreshold);
   const label = document.getElementById("shakeThresholdVal");
   if (label) {
@@ -2127,19 +2025,19 @@ function updateUI() {
   });
 
   const countBadge = document.getElementById("customColorCountBadge");
-  if (countBadge) countBadge.innerText = t("twoHundredColorsBadge", "200 لون");
+  if (countBadge) countBadge.innerText = t("fourHundredColorsBadge", "400 لون");
   const closeColorModalBtn = document.getElementById("closeColorModalBtn");
   if (closeColorModalBtn) closeColorModalBtn.innerText = t("close", "إغلاق");
 
   // ترجمة شريط التخصيص الحي للأزرار
   const liveBtnCustTitle = document.getElementById("liveBtnCustTitle");
-  if (liveBtnCustTitle) liveBtnCustTitle.innerText = `⚙️ ${t("customizeButtons", "المعاينة والتخصيص الحي للأزرار")}`;
+  if (liveBtnCustTitle) liveBtnCustTitle.innerText = `⚙️ ${t("customizeButtons", "تخصيص الأزرار الحي")}`;
   const lblBtnStyleChoice = document.getElementById("lblBtnStyleChoice");
   if (lblBtnStyleChoice) lblBtnStyleChoice.innerText = t("buttonStyleLabel", "نمط ظهور الأزرار");
   const liveBtnStyleSingle = document.getElementById("liveBtnStyleSingle");
   if (liveBtnStyleSingle) liveBtnStyleSingle.innerText = t("singleForwardBtn", "زر تقدم واحد");
   const liveBtnStyleDual = document.getElementById("liveBtnStyleDual");
-  if (liveBtnStyleDual) liveBtnStyleDual.innerText = t("dualPrevNextBtn", "زرين (سابق / تالي)");
+  if (liveBtnStyleDual) liveBtnStyleDual.innerText = t("dualBtnShort", "زرين");
   const lblLockDualButtons = document.getElementById("lblLockDualButtons");
   if (lblLockDualButtons) lblLockDualButtons.innerText = t("lockDualButtonsLabel", "تحريك الزرين معاً ككتلة واحدة");
   const lblBtnScale = document.getElementById("lblBtnScale");
@@ -2268,7 +2166,6 @@ function finishOnboarding() {
 }
 
 function switchTab(tab, bypassPrayerGuard = false) {
-  // حماية جلسة الصلاة النشطة من الانتقال الخاطئ لتبويب آخر
   if (isPrayerActive && !bypassPrayerGuard && !isLiveCustomizing && !isLiveTextCustomizing && tab !== "guide") {
     showExitPrayerConfirmationToast(tab);
     return;
@@ -2368,7 +2265,7 @@ window.switchTasbeehMode = switchTasbeehMode;
 window.applyCustomTasbeehGoal = applyCustomTasbeehGoal;
 window.repeatSavedGoal = repeatSavedGoal;
 window.deleteSavedGoal = deleteSavedGoal;
-window.toggleTasbeehPiP = toggleTasbeehPiP;
+window.launchExternalFloatingTasbeeh = launchExternalFloatingTasbeeh;
 window.resetTasbeehCounter = resetTasbeehCounter;
 window.toggleTasbeehHaptic = toggleTasbeehHaptic;
 window.adjustTasbeehRingSize = adjustTasbeehRingSize;
@@ -2392,7 +2289,6 @@ window.closeModal = closeModal;
   container.addEventListener("touchmove", handleTouchMove, { passive: true });
   container.addEventListener("touchend", handleTouchEnd, { passive: true });
 
-  // تفعيل السحب باللمس للأشرطة العائمة
   initFloatingToolbarDrag(
     document.getElementById("liveCustomizerToolbar"),
     document.getElementById("btnCustomizerDragHandle")
