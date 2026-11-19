@@ -122,14 +122,14 @@ function initAlwaysOnSplash() {
 
     const hasUpdate = await checkForAppUpdates();
 
-    splash.classList.add("hide-splash");
+splash.classList.add("hide-splash");
     setTimeout(() => {
       splash.style.display = "none";
       if (!hasUpdate && typeof showOnboardingIfNeeded === "function") {
         showOnboardingIfNeeded();
       }
     }, 520);
-  }, 1550);
+  }, 3000);
 }
 
 // تصدير الدوال للنطاق العام
