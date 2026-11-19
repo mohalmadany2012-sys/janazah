@@ -1,5 +1,5 @@
 /* ==========================================================================
-   قوائم الألوان (الـ 6 الفخمة وقائمة الـ 200 لون المتدرجة)
+   قوائم الألوان (الـ 6 الفخمة وقائمة الـ 400 لون المتدرجة)
    ========================================================================== */
 
 // 1. الألوان الستة الفخمة والوقورة المختارة بعناية (الأزرق السماوي الراقي أولاً)
@@ -12,44 +12,107 @@ const primarySixLuxuryColors = [
   "#831843"  // العنابي الهادئ
 ];
 
-// 2. قائمة الـ 200 لون المنظمة بتدرجات راقية (تدرجات متجانسة ومتسلسلة بدقة)
-const allTwoHundredColors = [
-  // الأزرق والسماوي والفيروزي (1 - 32)
-  "#0284C7", "#0369A1", "#075985", "#0C4A6E", "#38BDF8", "#7DD3FC", "#BAE6FD", "#E0F2FE",
-  "#0288D1", "#01579B", "#0097A7", "#00838F", "#006064", "#00ACC1", "#26C6DA", "#80DEEA",
-  "#0F766E", "#115E59", "#134E4A", "#14B8A6", "#2DD4BF", "#5EEAD4", "#99F6E4", "#CCFBF1",
-  "#0891B2", "#0E7490", "#155E75", "#164E63", "#06B6D4", "#22D3EE", "#67E8F9", "#A5F3FC",
-  
-  // الكحلي والنيلي والأزرق الملكي (33 - 64)
-  "#0F172A", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0",
-  "#1E3A8A", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE", "#DBEAFE",
-  "#1A237E", "#283593", "#303F9F", "#3949AB", "#3F51B5", "#5C6BC0", "#7986CB", "#9FA8DA",
-  "#312E81", "#3730A3", "#4338CA", "#4F46E5", "#6366F1", "#818CF8", "#A5B4FC", "#C7D2FE",
+// 2. قائمة الـ 400 لون المنظمة بتدرجات راقية (25 مجموعة × 16 لون = 400 لون متجانس بدقة)
+const allFourHundredColors = [
+  // 1. الأزرق السماوي الصافي (1 - 16)
+  "#0C4A6E", "#075985", "#0369A1", "#0284C7", "#0EA5E9", "#38BDF8", "#7DD3FC", "#BAE6FD",
+  "#01579B", "#0277BD", "#0288D1", "#039BE5", "#03A9F4", "#29B6F6", "#4FC3F7", "#81D4FA",
 
-  // الأخضر والزيتوني والزمردي (65 - 96)
+  // 2. الفيروزي والأزرق المحيطي (17 - 32)
+  "#164E63", "#155E75", "#0E7490", "#0891B2", "#06B6D4", "#22D3EE", "#67E8F9", "#A5F3FC",
+  "#006064", "#00838F", "#0097A7", "#00ACC1", "#00BCD4", "#26C6DA", "#4DD0E1", "#80DEEA",
+
+  // 3. الأخضر المائي والزمردي الفاتح (33 - 48)
+  "#134E4A", "#115E59", "#0F766E", "#0D9488", "#14B8A6", "#2DD4BF", "#5EEAD4", "#99F6E4",
+  "#004D40", "#00695C", "#00796B", "#00897B", "#009688", "#26A69A", "#4DB6AC", "#80CBC4",
+
+  // 4. الأخضر الزمردي الملكي (49 - 64)
   "#064E3B", "#065F46", "#047857", "#059669", "#10B981", "#34D399", "#6EE7B7", "#A7F3D0",
-  "#14532D", "#166534", "#15803D", "#16A34A", "#22C55E", "#4ADE80", "#86EFAC", "#BBF7D0",
   "#1B5E20", "#2E7D32", "#388E3C", "#43A047", "#4CAF50", "#66BB6A", "#81C784", "#A5D6A7",
+
+  // 5. الأخضر الغابي والطبيعي (65 - 80)
+  "#14532D", "#166534", "#15803D", "#16A34A", "#22C55E", "#4ADE80", "#86EFAC", "#BBF7D0",
+  "#33691E", "#558B2F", "#689F38", "#7CB342", "#8BC34A", "#9CCC65", "#AED581", "#C5E1A5",
+
+  // 6. الأخضر الزيتوني والليموني الدافئ (81 - 96)
   "#365314", "#3F6212", "#4D7C0F", "#65A30D", "#84CC16", "#A3E635", "#BEF264", "#D9F99D",
+  "#4A5D23", "#5C732C", "#6E8935", "#809F3E", "#92B547", "#A4CB50", "#B6E159", "#C8F762",
 
-  // البنفسجي والأرجواني والميدنايت (97 - 128)
-  "#3B0764", "#4A044E", "#581C87", "#6B21A8", "#7E22CE", "#9333EA", "#A855F7", "#C084FC",
+  // 7. الأزرق الملكي والكحلي العميق (97 - 112)
+  "#1E3A8A", "#1E40AF", "#1D4ED8", "#2563EB", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE",
+  "#0D47A1", "#1565C0", "#1976D2", "#1E88E5", "#2196F3", "#42A5F5", "#64B5F6", "#90CAF9",
+
+  // 8. النيلي والسافير الداكن (113 - 128)
+  "#312E81", "#3730A3", "#4338CA", "#4F46E5", "#6366F1", "#818CF8", "#A5B4FC", "#C7D2FE",
+  "#1A237E", "#283593", "#303F9F", "#3949AB", "#3F51B5", "#5C6BC0", "#7986CB", "#9FA8DA",
+
+  // 9. البنفسجي الملكي والأرجواني (129 - 144)
+  "#4C1D95", "#5B21B6", "#6D28D9", "#7C3AED", "#8B5CF6", "#A78BFA", "#C4B5FD", "#DDD6FE",
+  "#311B92", "#4527A0", "#512DA8", "#5E35B1", "#673AB7", "#7E57C2", "#9575CD", "#B39DDB",
+
+  // 10. البنفسجي المخملي والأميثيست (145 - 160)
+  "#581C87", "#6B21A8", "#7E22CE", "#9333EA", "#A855F7", "#C084FC", "#D8B4FE", "#E9D5FF",
   "#4A148C", "#6A1B9A", "#7B1FA2", "#8E24AA", "#9C27B0", "#AB47BC", "#BA68C8", "#CE93D8",
-  "#701A75", "#86198F", "#A21CAF", "#C026D3", "#D946EF", "#E879F9", "#F0ABFC", "#F5D0FE",
-  "#831843", "#9D174D", "#BE185D", "#DB2777", "#EC4899", "#F472B6", "#F9A8D4", "#FBCFE8",
 
-  // العنابي والأحمر والياقوتي (129 - 160)
+  // 11. الفوشيا والأوركيد الفاخر (161 - 176)
+  "#701A75", "#86198F", "#A21CAF", "#C026D3", "#D946EF", "#E879F9", "#F0ABFC", "#F5D0FE",
+  "#660066", "#800080", "#990099", "#B300B3", "#CC00CC", "#E600E6", "#FF33FF", "#FF80FF",
+
+  // 12. العنابي والوردي الملكي (177 - 192)
+  "#831843", "#9D174D", "#BE185D", "#DB2777", "#EC4899", "#F472B6", "#F9A8D4", "#FBCFE8",
+  "#880E4F", "#AD1457", "#C2185B", "#D81B60", "#E91E63", "#EC407A", "#F06292", "#F48FB1",
+
+  // 13. الياقوتي والقرمزي العميق (193 - 208)
   "#881337", "#9F1239", "#BE123C", "#E11D48", "#F43F5E", "#FB7185", "#FDA4AF", "#FECDD3",
+  "#7B112C", "#941636", "#AD1B40", "#C6204A", "#DF2554", "#F23B68", "#F66186", "#FA87A4",
+
+  // 14. الأحمر المرجاني والعقيقي (209 - 224)
   "#7F1D1D", "#991B1B", "#B91C1C", "#DC2626", "#EF4444", "#F87171", "#FCA5A5", "#FECACA",
   "#B71C1C", "#C62828", "#D32F2F", "#E53935", "#F44336", "#EF5350", "#E57373", "#EF9A9A",
-  "#7C2D12", "#9A3412", "#C2410C", "#EA580C", "#F97316", "#FB923C", "#FDBA74", "#FED7AA",
 
-  // الذهبي والبرونزي والبني الترابي والرمادي (161 - 200)
+  // 15. البرتقالي المحروق والنحاسي (225 - 240)
+  "#7C2D12", "#9A3412", "#C2410C", "#EA580C", "#F97316", "#FB923C", "#FDBA74", "#FED7AA",
+  "#BF360C", "#D84315", "#E64A19", "#F4511E", "#FF5722", "#FF7043", "#FF8A65", "#FFAB91",
+
+  // 16. الكهرماني والذهبي البرونزي (241 - 256)
   "#78350F", "#92400E", "#B45309", "#D97706", "#F59E0B", "#FBBF24", "#FCD34D", "#FDE68A",
+  "#E65100", "#EF6C00", "#F57C00", "#FB8C00", "#FF9800", "#FFA726", "#FFB74D", "#FFCC80",
+
+  // 17. الذهبي الأصفر والعسلي (257 - 272)
   "#713F12", "#854D0E", "#A16207", "#CA8A04", "#EAB308", "#FACC15", "#FDE047", "#FEF08A",
+  "#827717", "#9E9D24", "#AFB42B", "#C0CA33", "#CDDC39", "#D4E157", "#DCE775", "#E6EE9C",
+
+  // 18. البني الترابي والخشبي الفاخر (273 - 288)
   "#3E2723", "#4E342E", "#5D4037", "#6D4C41", "#795548", "#8D6E63", "#A1887F", "#BCAAA4",
-  "#451A03", "#78350F", "#9A3412", "#A24B15", "#B85D19", "#C87023", "#D9822B", "#E89740",
-  "#111827", "#1F2937", "#374151", "#4B5563", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB"
+  "#451A03", "#632808", "#80360D", "#9E4412", "#BC5217", "#D9601C", "#E87A3E", "#F09B6B",
+
+  // 19. الرملي والبيج الملكي الدافئ (289 - 304)
+  "#44403C", "#57534E", "#78716C", "#A8A29E", "#D6D3D1", "#E7E5E4", "#F5F5F4", "#FAFAF9",
+  "#5C4D3C", "#73604B", "#8A735A", "#A18669", "#B89978", "#CFAC87", "#E6BF96", "#F2D2B0",
+
+  // 20. الكحلي الليلي والأردوازي البارد (305 - 320)
+  "#0F172A", "#1E293B", "#334155", "#475569", "#64748B", "#94A3B8", "#CBD5E1", "#E2E8F0",
+  "#102A43", "#243B53", "#334E68", "#486581", "#627D98", "#829AB1", "#9FB3C8", "#BCCCDC",
+
+  // 21. الرمادي المعدني والبلاتيني (321 - 336)
+  "#111827", "#1F2937", "#374151", "#4B5563", "#6B7280", "#9CA3AF", "#D1D5DB", "#E5E7EB",
+  "#263238", "#37474F", "#455A64", "#546E7A", "#607D8B", "#78909C", "#90A4AE", "#B0BEC5",
+
+  // 22. الفحمي المحايد والتيتانيوم (337 - 352)
+  "#18181B", "#27272A", "#3F3F46", "#52525B", "#71717A", "#A1A1AA", "#D4D4D8", "#E4E4E7",
+  "#171717", "#262626", "#404040", "#525252", "#737373", "#A3A3A3", "#D4D4D4", "#E5E5E5",
+
+  // 23. الزمردي المزرق (Teal Slate) (353 - 368)
+  "#0A2E36", "#114652", "#185E6E", "#1F768A", "#268EA6", "#3BA6BF", "#5EC0D6", "#88D6E8",
+  "#0D3B38", "#155752", "#1D736C", "#258F86", "#2DABA0", "#45C4B9", "#6BD8CE", "#96E8E0",
+
+  // 24. الأزرق الكوبالتي والسماوي العميق (369 - 384)
+  "#0A2463", "#1E3888", "#2B4C7E", "#3E6990", "#4E8098", "#6096BA", "#7EB2D6", "#A3CEF1",
+  "#003049", "#004B73", "#00669C", "#0081C6", "#009CEF", "#29B2FF", "#5CC4FF", "#8FD6FF",
+
+  // 25. البرقوقي والخمري الملكي (385 - 400)
+  "#3B0764", "#4A044E", "#590D22", "#800F2F", "#A4133C", "#C9184A", "#FF4D6D", "#FF758F",
+  "#2B193D", "#3C2454", "#4D2F6B", "#5E3A82", "#6F4599", "#875EB0", "#9F78C7", "#B894DE"
 ];
 
 /* ==========================================================================
@@ -106,7 +169,7 @@ const stepsData = [
     } 
   },
   { 
-    title: { English: "Third Takbeer - Dua for the Deceased", العربية: "التكبيرة الثالثة - الدعاء للميت", اردو: "تیسری تکبیر - میت کے لیے دعا", Français: "Troisième Takbir - Invocation pour le défunt", Deutsch: "Dritter Takbir - Bittgebet für den Verstorbenen", Русский: "Третий такбир - Мольба за умершего", Español: "Tercer Takbir - Súplica por el difunto", हिन्दी: "तीसरी तकबीर - मृतक के लिए दुआ", Indonesia: "Takbir Ketiga - Doa untuk Mayit" },
+    title: { English: "Third Takbeer - Dua for the Deceased", العربية: "التكبيرة الثالثة - الدعاء للميت", اردو: "تیسری تکبیر - میت کے لیے دعا", Français: "Troisième Takbir - Invocation pour le défunt", Deutsch: "Dritter Takbir - Bittgebet für den Verstorbenen", Русский: "Третий такбир - Мольба за умершего", Español: "Tercer Takbir - Súplica por el difunto", हिन्दी: "तीसरी तकबीर - मृतक के लिए दुआ", Indonesia: "Takbir Ketiga - Doa untuk Jenazah" },
     icon: "🤲",
     arabic: "اللَّهُمَّ اغْفِرْ لَهُ وَارْحَمْهُ وَعَافِهِ وَاعْفُ عَنْهُ، وَأَكْرِمْ نُزُلَهُ، وَوَسِّعْ مُدْخَلَهُ، وَاغْسِلْهُ بِالْمَاءِ وَالثَّلْجِ وَالْبَرَدِ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا نَقَّيْتَ الثَّوْبَ الْأَبْيَضَ مِنَ الدَّنَسِ، وَأَبْدِلْهُ دَارًا خَيْرًا مِنْ دَارِهِ، وَأَهْلًا خَيْرًا مِنْ أَهْلِهِ، وَزَوْجًا خَيْرًا مِنْ زَوْجِهِ، وَأَدْخِلْهُ الْجَنَّةَ وَأَعِذْهُ مِنْ عَذَابِ الْقَبْرِ، وَمِنْ عَذَابِ النَّارِ", 
     translit: "Allahumma-ghfir lahu warhamhu wa 'aafihi wa'fu 'anhu, wa akrim nuzulahu, wa wassi' mudkhalahu, waghsilhu bil-ma'i wath-thalji wal-barad, wa naqqihi minal-khataya kama naqqaytath-thawbal-abyada minad-danas, wa abdilhu daran khayran min darihi, wa ahlan khayran min ahlihi, wa zawjan khayran min zawjihi, wa adkhilhul-jannata wa a'idh-hu min 'adhabil-qabri, wa min 'adhabin-nar", 
@@ -123,7 +186,7 @@ const stepsData = [
     } 
   },
   { 
-    title: { English: "Fourth Takbeer - Dua for all Muslims", العربية: "التكبيرة الرابعة - الدعاء لعموم المسلمين", اردو: "چوتھی تکبیر - تمام مسلمانوں کے لیے دعا", Français: "Quatrième Takbir - Invocation pour tous les musulmans", Deutsch: "Vierter Takbir - Bittgebet für alle Muslime", Русский: "Четвёртый такбир - Мольба за всех мусульман", Español: "Cuarto Takbir - Súplica por todos los musulmanes", हिन्दी: "चौथी तकबीर - सभी मुसलमानों के लिए दुआ", Indonesia: "Takbir Keempat - Doa untuk seluruh kaum muslimin" },
+    title: { English: "Fourth Takbeer - Dua for all Muslims", العربية: "التكبيرة الرابعة - الدعاء لعموم المسلمين", اردو: "چوتھی تکبیر - تمام مسلمانوں کے لیے دعا", Français: "Quatrième Takbir - Invocation pour tous les musulmans", Deutsch: "Vierter Takbir - Bittgebet für alle Muslime", Русский: "Четвёртый такбир - Мольба за всех мусульман", Español: "Cuarto Takbir - Súplica por todos los musulmanes", हिन्दी: "चौथी तकबीर - सभी मुसलमानों के लिए दुआ", Indonesia: "Takbir Keempat - Doa untuk Seluruh Kaum Muslimin" },
     icon: "🌍",
     arabic: "اللَّهُمَّ اغْفِرْ لِحَيِّنَا وَمَيِّتِنَا، وَشَاهِدِنَا وَغَائِبِنَا، وَصَغِيرِنَا وَكَبِيرِنَا، وَذَكَرِنَا وَأُنْثَانَا، اللَّهُمَّ مَنْ أَحْيَيْتَهُ مِنَّا فَأَحْيِهِ عَلَى الْإِسْلَامِ، وَمَنْ تَوَفَّيْتَهُ مِنَّا فَتَوَفَّهُ عَلَى الْإِيمَانِ، اللَّهُمَّ لَا تَحْرِمْنَا أَجْرَهُ، وَلَا تُضِلَّنَا بَعْدَهُ", 
     translit: "Allahumma-ghfir lihayyina wa mayyitina, wa shahidina wa gha'ibina, wa saghirina wa kabirina, wa dhakarina wa unthana. Allahumma man ahyaytahu minna fa'ahyihi 'alal-Islam, wa man tawaffaytahu minna fatawaffahu 'alal-iman. Allahumma la tahrimna ajrahu, wa la tudillana ba'dahu", 
@@ -134,7 +197,7 @@ const stepsData = [
       اردو: "اے اللہ! ہمارے زندوں اور ہمارے مردوں کو، ہمارے حاضر اور ہمارے غائب کو، ہمارے چھوٹے اور ہمارے بڑے کو، ہمارے مردوں اور ہماری عورتوں کو بخش دے۔ اے اللہ! ہم میں سے جسے تو زندہ رکھے اسے اسلام پر زندہ رکھ، اور ہم میں سے جسے تو وفات دے اسے ایمان پر وفات دے۔ اے اللہ! ہمیں اس کے اجر سے محروم نہ کر، اور اس کے بعد ہمیں گمراہ نہ کر۔", 
       Deutsch: "O Allah, vergib unseren Lebenden und unseren Toten, unseren Anwesenden und unseren Abwesenden, unseren Jungen und unseren Alten, unseren Männern und unseren Frauen. O Allah, wen von uns Du am Leben erhältst, den erhalte am Leben auf dem Islam, und wen von uns Du sterben lässt, den lasse sterben auf dem Glauben. O Allah, beraube uns nicht seines Lohnes, und lass uns nach ihm nicht irregehen.", 
       Русский: "О Аллах, прости наших живых и наших мёртвых, наших присутствующих и наших отсутствующих, наших малых и наших старых, наших мужчин и наших женщин. О Аллах, кого из нас Ты оставишь в живых, того оставь в живых на Исламе, а кого из нас Ты упокоишь, того упокой на вере. О Аллах, не лиши нас награды за него и не введи нас в заблуждение после него.", 
-      Español: "Oh Allah, perdona a nuestros vivos y a nuestros muertos, a nuestros presentes y a nuestros ausentes, a nuestros pequeños y a nuestros mayores, a nuestros hombres y a nuestras mujeres. Oh Allah, a quien de nosotros mantengas con vida, mantenlo con vida sobre el Islam, y a quien de nosotros hagas morir, hazlo morir sobre la fe. Oh Allah, no nos prives de su recompensa, y no nos desvíes después de él.", 
+      Español: "Oh Allah, perdona a nuestros vivos y a nuestros muertos, a nuestros presentes y a nuestros ausentes, a nuestros pequeños y a nuestros mayores, a nuestros hombres y a nuestros mujeres. Oh Allah, a quien de nosotros mantengas con vida, mantenlo con vida sobre el Islam, y a quien de nosotros hagas morir, hazlo morir sobre la fe. Oh Allah, no nos prives de su recompensa, y no nos desvíes después de él.", 
       हिन्दी: "ऐ अल्लाह, हमारे ज़िंदों और हमारे मुर्दों को, हमारे हाज़िर और हमारे ग़ायब को, हमारे छोटे और हमारे बड़े को, हमारे मर्दों और हमारी औरतों को बख़्श दे। ऐ अल्लाह, हम में से जिसे तू ज़िंदा रखे उसे इस्लाम पर ज़िंदा रख, और हम में से जिसे तू मौत दे उसे ईमान पर मौत दे। ऐ अल्लाह, हमें उसके अज्र से महरूम न कर, और उसके बाद हमें गुमराह न कर।", 
       Indonesia: "Ya Allah, ampunilah orang-orang yang masih hidup di antara kami dan yang telah wafat, yang hadir dan yang tidak hadir, yang kecil dan yang besar, laki-laki dan perempuan kami. Ya Allah, siapa yang Engkau hidupkan di antara kami, maka hidupkanlah dia di atas Islam, dan siapa yang Engkau wafatkan di antara kami, maka wafatkanlah dia di atas iman. Ya Allah, janganlah Engkau halangi kami dari pahalanya, dan janganlah Engkau sesatkan kami setelahnya." 
     } 
@@ -142,7 +205,7 @@ const stepsData = [
 ];
 
 /* ==========================================================================
-   قاموس واجهة المستخدم وترجماته الشاملة (UI Map - 9 Languages)
+   قاموس واجهة المستخدم وترجماته المدققة بالكامل (UI Map - 9 Languages)
    ========================================================================== */
 const uiMap = {
   // شاشة البداية ونظام التحديثات
@@ -150,13 +213,13 @@ const uiMap = {
   splashAppSubtitle: { English: "Funeral Prayer Step-by-Step Guide & Rulings", العربية: "صفة صلاة الجنازة وأحكامها", اردو: "نمازِ جنازہ کا طریقہ اور احکام", Français: "Guide et règles de la prière funéraire", Deutsch: "Anleitung & Regeln zum Totengebet", Русский: "Порядок и правила заупокойной молитвы", Español: "Guía y normas de la oración fúnebre", हिन्दी: "नमाज़-ए-जनाज़ा का तरीक़ा और अहकाम", Indonesia: "Tata Cara & Hukum Shalat Jenazah" },
   checkingUpdates: { English: "Checking for updates...", العربية: "جاري التحقق من التحديثات...", اردو: "اپ ڈیٹس چیک کی جا رہی ہیں...", Français: "Vérification des mises à jour...", Deutsch: "Suche nach Updates...", Русский: "Проверка обновлений...", Español: "Buscando actualizaciones...", हिन्दी: "अपडेट की जाँच हो रही है...", Indonesia: "Memeriksa pembaruan..." },
   updateAvailableTitle: { English: "New Update Available", العربية: "تحديث جديد متوفر", اردو: "نئی اپ ڈیٹ دستیاب ہے", Français: "Nouvelle mise à jour disponible", Deutsch: "Neues Update verfügbar", Русский: "Доступно обновление", Español: "Nueva actualización disponible", हिन्दी: "नया अपडेट उपलब्ध है", Indonesia: "Pembaruan Baru Tersedia" },
-  updateAvailableDesc: { English: "A newer, more stable version of Janazah Guide is available on Google Play Store.", العربية: "يتوفر إصدار أحدث وأكثر استقراراً من تطبيق دليل الجنازة على متجر Google Play.", اردو: "گوگل پلے اسٹور پر جنازہ گائیڈ کا نیا اور بہتر ورژن دستیاب ہے۔", Français: "Une version plus récente et plus stable est disponible sur Google Play.", Deutsch: "Eine neuere, stabilere Version ist im Google Play Store verfügbar.", Русский: "В Google Play доступна более новая и стабильная версия приложения.", Español: "Hay una versión más reciente y estable disponible en Google Play.", हिन्दी: "Google Play पर जनाज़ा गाइड का नया और बेहतर संस्करण उपलब्ध है।", Indonesia: "Versi terbaru dan lebih stabil tersedia di Google Play Store." },
+  updateAvailableDesc: { English: "A newer, more stable version of Janazah Guide is available on Google Play Store.", العربية: "يتوفر إصدار أحدث وأكثر استقراراً من تطبيق دليل الجنازة على متجر Google Play.", اردو: "گوگل پلے اسٹور پر نمازِ جنازہ گائیڈ کا نیا اور بہتر ورژن دستیاب ہے۔", Français: "Une version plus récente et plus stable est disponible sur Google Play.", Deutsch: "Eine neuere, stabilere Version ist im Google Play Store verfügbar.", Русский: "В Google Play доступна более новая и стабильная версия приложения.", Español: "Hay una versión más reciente y estable disponible en Google Play.", हिन्दी: "Google Play पर जनाज़ा गाइड का नया और बेहतर संस्करण उपलब्ध है।", Indonesia: "Versi terbaru dan lebih stabil tersedia di Google Play Store." },
   updateNowBtn: { English: "Update Now", العربية: "تحديث الآن", اردو: "ابھی اپ ڈیٹ کریں", Français: "Mettre à jour", Deutsch: "Jetzt aktualisieren", Русский: "Обновить сейчас", Español: "Actualizar ahora", हिन्दी: "अभी अपडेट करें", Indonesia: "Perbarui Sekarang" },
   updateLaterBtn: { English: "Later", العربية: "لاحقاً", اردو: "بعد میں", Français: "Plus tard", Deutsch: "Später", Русский: "Позже", Español: "Más tarde", हिन्दी: "बाद में", Indonesia: "Nanti" },
 
   // التبويبات الرئيسية والعناوين
   guide: { English: "Guide", العربية: "الدليل", اردو: "رہنما", Français: "Guide", Deutsch: "Leitfaden", Русский: "Руководство", Español: "Guía", हिन्दी: "मार्गदर्शिका", Indonesia: "Panduan" },
-  extras: { English: "Extras", العربية: "الإضافات", اردو: "اضافی", Français: "Extra", Deutsch: "Extras", Русский: "Дополнительно", Español: "Extras", हिन्दी: "अतिरिक्त", Indonesia: "Tambahan" },
+  extras: { English: "Extras", العربية: "الإضافات", اردو: "اضافی", Français: "Extras", Deutsch: "Extras", Русский: "Дополнительно", Español: "Extras", हिन्दी: "अतिरिक्त", Indonesia: "Tambahan" },
   settings: { English: "Settings", العربية: "الإعدادات", اردو: "ترتیبات", Français: "Paramètres", Deutsch: "Einstellungen", Русский: "Настройки", Español: "Ajustes", हिन्दी: "सेटिंग्स", Indonesia: "Pengaturan" },
   language: { English: "Language", العربية: "اللغة", اردو: "زبان", Français: "Langue", Deutsch: "Sprache", Русский: "Язык", Español: "Idioma", हिन्दी: "भाषा", Indonesia: "Bahasa" },
 
@@ -186,7 +249,7 @@ const uiMap = {
     हिन्दी: "दुआओं में फ़ॉन्ट आकार साफ़ बदलता है और इंटरफ़ेस संतुलित रहता है।",
     Indonesia: "Ukuran font berubah jelas pada doa-doa dan tetap seimbang di tampilan antarmuka."
   },
-  themeModeTitle: { English: "Theme Mode", العربية: "وضع المظهر", اردو: "تھيم موڈ", Français: "Mode de thème", Deutsch: "Design-Modus", Русский: "Режим темы", Español: "Modo de tema", हिन्दी: "थीम मोड", Indonesia: "Mode Tema" },
+  themeModeTitle: { English: "Theme Mode", العربية: "وضع المظهر", اردو: "تھیم موڈ", Français: "Mode de thème", Deutsch: "Design-Modus", Русский: "Режим темы", Español: "Modo de tema", हिन्दी: "थीम मोड", Indonesia: "Mode Tema" },
   small: { English: "Small", العربية: "صغير", اردو: "چھوٹا", Français: "Petit", Deutsch: "Klein", Русский: "Маленький", Español: "Pequeño", हिन्दी: "छोटा", Indonesia: "Kecil" },
   medium: { English: "Medium", العربية: "متوسط", اردو: "درمیانہ", Français: "Moyen", Deutsch: "Mittel", Русский: "Средний", Español: "Mediano", हिन्दी: "मध्यम", Indonesia: "Sedang" },
   large: { English: "Large", العربية: "كبير", اردو: "بڑا", Français: "Grand", Deutsch: "Groß", Русский: "Большой", Español: "Grande", हिन्दी: "बड़ा", Indonesia: "Besar" },
@@ -196,7 +259,7 @@ const uiMap = {
   autoTheme: { English: "Auto", العربية: "تلقائي", اردو: "خودکار", Français: "Automatique", Deutsch: "Automatisch", Русский: "Автоматически", Español: "Automático", हिन्दी: "स्वचालित", Indonesia: "Otomatis" },
   accentLabel: { English: "Accent Color", العربية: "اللون المميز", اردو: "نمایاں رنگ", Français: "Couleur d'accent", Deutsch: "Akzentfarbe", Русский: "Цвет темы", Español: "Color distintivo", हिन्दी: "थीम रंग", Indonesia: "Warna Tema" },
   additionalColorsBtn: { English: "Additional Colors", العربية: "ألوان إضافية", اردو: "مزید رنگ", Français: "Couleurs supplémentaires", Deutsch: "Zusätzliche Farben", Русский: "Дополнительные цвета", Español: "Colores adicionales", हिन्दी: "अतिरिक्त रंग", Indonesia: "Warna Tambahan" },
-  twoHundredColorsBadge: { English: "200 Colors", العربية: "200 لون", اردو: "200 رنگ", Français: "200 Couleurs", Deutsch: "200 Farben", Русский: "200 цветов", Español: "200 Colores", हिन्दी: "200 रंग", Indonesia: "200 Warna" },
+  fourHundredColorsBadge: { English: "400 Colors", العربية: "400 لون", اردو: "400 رنگ", Français: "400 Couleurs", Deutsch: "400 Farben", Русский: "400 цветов", Español: "400 Colores", हिन्दी: "400 रंग", Indonesia: "400 Warna" },
 
   // التهيئة والمشاركة
   continueBtn: { English: "Continue →", العربية: "متابعة ←", اردو: "جاری رکھیں ←", Français: "Continuer →", Deutsch: "Weiter →", Русский: "Продолжить →", Español: "Continuar →", हिन्दी: "जारी रखें →", Indonesia: "Lanjutkan →" },
@@ -204,7 +267,7 @@ const uiMap = {
   startApp: { English: "Start App", العربية: "ابدأ التطبيق", اردو: "ایپ شروع کریں", Français: "Démarrer", Deutsch: "App starten", Русский: "Начать работу", Español: "Iniciar aplicación", हिन्दी: "ऐप शुरू करें", Indonesia: "Mulai Aplikasi" },
   close: { English: "Close", العربية: "إغلاق", اردو: "بند کریں", Français: "Fermer", Deutsch: "Schließen", Русский: "Закрыть", Español: "Cerrar", हिन्दी: "बंद करें", Indonesia: "Tutup" },
   shareLabel: { English: "QR Code", العربية: "رمز QR", اردو: "QR کوڈ", Français: "Code QR", Deutsch: "QR-Code", Русский: "QR-код", Español: "Código QR", हिन्दी: "QR कोड", Indonesia: "Kode QR" },
-  shareReward: { English: "Share the Reward", العربية: "شارك الأجر", اردو: "ثواب شیئر کریں", Français: "Partager la récompense", Deutsch: "Belohnung teilen", Русский: "Поделиться наградой", Español: "Compartir recompensa", हिन्दी: "सवाब साझा करें", Indonesia: "Bagikan Kebaikan" },
+  shareReward: { English: "Share the Reward", العربية: "شارك الأجر", اردو: "ثواب شیئر کریں", Français: "Partager la récompense", Deutsch: "Belohnung teilen", Русский: "Поделиться наградой", Español: "Compartir recompensa", हिन्दी: "सवाब साझा करें", Indonesia: "Bagikan Pahala" },
   qrSubText: { English: "Scan code to share Janazah Guide and gain reward", العربية: "امسح الرمز لنشر تطبيق دليل الجنازة ونيل الأجر", اردو: "ایپ شیئر کرنے اور ثواب حاصل کرنے کے لیے اسکین کریں", Français: "Scannez pour partager l'application et obtenir la récompense", Deutsch: "Scannen, um die App zu teilen und Belohnung zu erhalten", Русский: "Отсканируйте код, чтобы поделиться и получить награду", Español: "Escanea el código para compartir la app y ganar recompensa", हिन्दी: "ऐप साझा करने और सवाब पाने के लिए स्कैन करें", Indonesia: "Pindai kode untuk membagikan aplikasi dan meraih pahala" },
   selectLangTitle: { English: "Select Language", العربية: "اختر اللغة", اردو: "زبان منتخب کریں", Français: "Choisir la langue", Deutsch: "Sprache wählen", Русский: "Выберите язык", Español: "Seleccionar idioma", हिन्दी: "भाषा चुनें", Indonesia: "Pilih Bahasa" },
   chooseThemeTitle: { English: "Choose Theme Color", العربية: "اختر اللون المميز", اردو: "نمایاں رنگ منتخب کریں", Français: "Choisir la couleur", Deutsch: "Akzentfarbe wählen", Русский: "Выберите цвет", Español: "Elegir color distintivo", हिन्दी: "थीम रंग चुनें", Indonesia: "Pilih Warna Tema" },
@@ -226,6 +289,7 @@ const uiMap = {
   saveAndExitBtn: { English: "Save & Exit ✓", العربية: "حفظ وخروج ✓", اردو: "محفوظ کریں اور باہر نکلیں ✓", Français: "Enregistrer et quitter ✓", Deutsch: "Speichern & Beenden ✓", Русский: "Сохранить и выйти ✓", Español: "Guardar y salir ✓", हिन्दी: "सेव करें और बाहर निकलें ✓", Indonesia: "Simpan & Keluar ✓" },
   buttonStyleLabel: { English: "Button Layout Style", العربية: "نمط ظهور الأزرار", اردو: "بٹنوں کا انداز", Français: "Style des boutons", Deutsch: "Tasten-Layout", Русский: "Стиль кнопок", Español: "Estilo de botones", हिन्दी: "बटन लेआउट शैली", Indonesia: "Gaya Tata Letak Tombol" },
   singleForwardBtn: { English: "Single Next Button", العربية: "زر تقدم واحد", اردو: "ایک اگلا بٹن", Français: "Bouton unique suivant", Deutsch: "Einzelne Weiter-Taste", Русский: "Одна кнопка вперёд", Español: "Un botón de avance", हिन्दी: "एकल अगला बटन", Indonesia: "Satu Tombol Lanjut" },
+  dualBtnShort: { English: "Dual", العربية: "زرين", اردو: "دو بٹن", Français: "Deux", Deutsch: "Zwei", Русский: "Две", Español: "Doble", हिन्दी: "दो बटन", Indonesia: "Ganda" },
   dualPrevNextBtn: { English: "Dual (Prev / Next)", العربية: "زرين (سابق / تالي)", اردو: "دو بٹن (پچھلا / اگلا)", Français: "Deux boutons (Préc / Suiv)", Deutsch: "Zwei Tasten (Zurück / Weiter)", Русский: "Две кнопки (Назад / Далее)", Español: "Dos botones (Ant / Sig)", हिन्दी: "दो बटन (पिछला / अगला)", Indonesia: "Dua Tombol (Sblm / Lanjut)" },
   lockDualButtonsLabel: { English: "Move both buttons together (uncheck to drag each separately)", العربية: "تحريك الزرين معاً ككتلة واحدة (إلغاء القفل لتحريك كل زر بمفرده)", اردو: "دونوں بٹن ایک ساتھ ہلائیں (الگ ہلانے کے لیے ان چیک کریں)", Français: "Déplacer les deux ensemble (décocher pour séparer)", Deutsch: "Beide zusammen bewegen (deaktivieren für einzeln)", Русский: "Двигать вместе (снимите галочку для раздельного)", Español: "Mover ambos juntos (desmarcar para separar)", हिन्दी: "दोनों बटन साथ चलाएं (अलग करने के लिए अनचेक करें)", Indonesia: "Geser kedua tombol bersamaan (hapus centang untuk pisah)" },
   scaleLabel: { English: "Scale", العربية: "الحجم", اردو: "سائز", Français: "Taille", Deutsch: "Größe", Русский: "Размер", Español: "Tamaño", हिन्दी: "आकार", Indonesia: "Ukuran" },
@@ -260,7 +324,18 @@ const uiMap = {
   tasbeehOfficialTitle: { English: "Electronic Tasbeeh", العربية: "السبحة الإلكترونية", اردو: "الیکٹرانک تسبیح", Français: "Chapelet Électronique", Deutsch: "Elektronische Gebetskette", Русский: "Электронный тасбих", Español: "Tasbih Electrónico", हिन्दी: "इलेक्ट्रॉनिक तस्बीह", Indonesia: "Tasbih Elektronik" },
   tasbeehOfficialSub: { English: "Full-screen view, smart counter, custom goals & floating widget", العربية: "شاشة كاملة منفصلة، عداد ذكي، أهداف مخصصة ونافذة عائمة", اردو: "مکمل اسکرین، اسمارٹ کاؤنٹر، مخصوص اہداف اور تیرتا ویجٹ", Français: "Plein écran, compteur intelligent, objectifs et widget flottant", Deutsch: "Vollbild, Zähler, eigene Ziele & schwebendes Widget", Русский: "Полный экран, счётчик, свои цели и плавающий виджет", Español: "Pantalla completa, metas personalizadas y widget flotante", हिन्दी: "फुल स्क्रीन, स्मार्ट काउंटर, कस्टम लक्ष्य और फ्लोटिंग विजेट", Indonesia: "Layar penuh, penghitung cerdas, target khusus & widget" },
   minimizeBtn: { English: "Minimize", العربية: "تصغير", اردو: "چھوٹا کریں", Français: "Réduire", Deutsch: "Minimieren", Русский: "Свернуть", Español: "Minimizar", हिन्दी: "छोटा करें", Indonesia: "Kecilkan" },
-  pipBtnLabel: { English: "Floating", العربية: "عائم", اردو: "بیرونی", Français: "Flottant", Deutsch: "Schwebend", Русский: "Поверх", Español: "Flotante", हिन्दी: "फ्लोटिंग", Indonesia: "Mengambang" },
+  pipBtnLabel: { English: "Floating", العربية: "عائم", اردو: "فلوٹنگ", Français: "Flottant", Deutsch: "Schwebend", Русский: "Поверх", Español: "Flotante", हिन्दी: "फ्लोटिंग", Indonesia: "Mengambang" },
+  floatingOverlayActivated: {
+    English: "Floating Tasbeeh overlay activated ✓",
+    العربية: "تم تفعيل النافذة العائمة للسبحة فوق التطبيقات ✓",
+    اردو: "ایپس کے اوپر تیرتی تسبیح فعال ہو گئی ✓",
+    Français: "Fenêtre flottante du chapelet activée ✓",
+    Deutsch: "Schwebendes Gebetsketten-Fenster aktiviert ✓",
+    Русский: "Плавающее окно тасбиха активировано ✓",
+    Español: "Ventana flotante del Tasbih activada ✓",
+    हिन्दी: "फ़्लोटिंग तस्बीह सक्रिय हो गई ✓",
+    Indonesia: "Jendela mengambang Tasbih diaktifkan ✓"
+  },
   resetShortBtn: { English: "Reset", العربية: "تصفير", اردو: "صفر", Français: "Zéro", Deutsch: "Null", Русский: "Сброс", Español: "Cero", हिन्दी: "रीसेट", Indonesia: "Reset" },
   targetLabel: { English: "Goal", العربية: "الهدف", اردو: "ہدف", Français: "Objectif", Deutsch: "Ziel", Русский: "Цель", Español: "Meta", हिन्दी: "लक्ष्य", Indonesia: "Target" },
   freeGoalMode: { English: "Free Mode", العربية: "الوضع الحر", اردو: "آزاد موڈ", Français: "Mode Libre", Deutsch: "Freier Modus", Русский: "Свободный режим", Español: "Modo Libre", हिन्दी: "मुक्त मोड", Indonesia: "Mode Bebas" },
@@ -339,15 +414,15 @@ const hintDetails = {
       Indonesia: "Guncang Perangkat"
     },
     desc: {
-      English: "Gently shake your phone in any direction to advance to the next Takbeer. The sensor is paused for 5 seconds when starting prayer and completely ignores shakes while touching the screen, with sensitivity adjustable from 11 to 25.",
-      العربية: "قم بهز الهاتف في أي اتجاه للانتقال تلقائياً للتكبيرة التالية. يتم عزل المستشعر تماماً أثناء لمس الشاشة بالأصابع ولمدة 5 ثوانٍ عند بدء الصلاة، مع حساسية قابلة للضبط من 11 وحتى 25.",
-      اردو: "فون کو کسی بھی سمت ہلکا سا ہلا کر اگلی تکبیر پر جائیں۔ نماز شروع ہوتے ہی سینسر 5 سیکنڈ کے لیے رکتا ہے اور اسکرین چھوتے وقت حرکت کو نظر انداز کرتا ہے (حساسیت 11 سے 25)۔",
-      Français: "Secouez doucement votre téléphone dans n'importe quelle direction. Le capteur est isolé pendant 5 secondes au début et lors du toucher (sensibilité de 11 à 25).",
-      Deutsch: "Schütteln Sie das Telefon sanft in beliebiger Richtung. Der Sensor pausiert 5 Sekunden beim Start und ignoriert Berührungen (Empfindlichkeit 11 bis 25).",
-      Русский: "Слегка встряхните телефон в любом направлении. Датчик блокируется на 5 секунд при старте и во время касания экрана (чувствительность от 11 до 25).",
-      Español: "Agita suavemente el teléfono en cualquier dirección. El sensor se aísla durante 5 segundos al inicio y al tocar la pantalla (sensibilidad de 11 a 25).",
-      हिन्दी: "फ़ोन को किसी भी दिशा में हल्के से हिलाएं। नमाज़ शुरू होने पर 5 सेकंड और स्क्रीन छूते समय सेंसर बंद रहता है (संवेदनशीलता 11 से 25)।",
-      Indonesia: "Guncang ponsel ke arah mana saja. Sensor dijeda 5 detik saat mulai dan saat layar disentuh (sensitivitas 11 hingga 25)."
+      English: "Gently shake your phone in any direction to advance to the next Takbeer. The sensor is paused for 5 seconds when starting prayer and completely ignores shakes while touching the screen, with sensitivity adjustable from 9 to 25.",
+      العربية: "قم بهز الهاتف في أي اتجاه للانتقال تلقائياً للتكبيرة التالية. يتم عزل المستشعر تماماً أثناء لمس الشاشة بالأصابع ولمدة 5 ثوانٍ عند بدء الصلاة، مع حساسية قابلة للضبط من 9 وحتى 25.",
+      اردو: "فون کو کسی بھی سمت ہلکا سا ہلا کر اگلی تکبیر پر جائیں۔ نماز شروع ہوتے ہی سینسر 5 سیکنڈ کے لیے رکتا ہے اور اسکرین چھوتے وقت حرکت کو نظر انداز کرتا ہے (حساسیت 9 سے 25)۔",
+      Français: "Secouez doucement votre téléphone dans n'importe quelle direction. Le capteur est isolé pendant 5 secondes au début et lors du toucher (sensibilité de 9 à 25).",
+      Deutsch: "Schütteln Sie das Telefon sanft in beliebiger Richtung. Der Sensor pausiert 5 Sekunden beim Start und ignoriert Berührungen (Empfindlichkeit 9 bis 25).",
+      Русский: "Слегка встряхните телефон в любом направлении. Датчик блокируется на 5 секунд при старте и во время касания экрана (чувствительность от 9 до 25).",
+      Español: "Agita suavemente el teléfono en cualquier dirección. El sensor se aísla durante 5 segundos al inicio y al tocar la pantalla (sensibilidad de 9 a 25).",
+      हिन्दी: "फ़ोन को किसी भी दिशा में हल्के से हिलाएं। नमाज़ शुरू होने पर 5 सेकंड और स्क्रीन छूते समय सेंसर बंद रहता है (संवेदनशीलता 9 से 25)।",
+      Indonesia: "Guncang ponsel ke arah mana saja. Sensor dijeda 5 detik saat mulai dan saat layar disentuh (sensitivitas 9 hingga 25)."
     }
   },
   voice: {
@@ -364,15 +439,15 @@ const hintDetails = {
       Indonesia: "Perintah Suara"
     },
     desc: {
-      English: "Saying 'Allahu Akbar' advances to the next Takbeer with a 1.5-second safety debounce to prevent skipping. The microphone session runs continuously in the background and restarts automatically if ended. Saying 'As-Salamu Alaykum' at the 4th Takbeer ends the prayer.",
-      العربية: "بمجرد التلفظ بـ 'الله أكبر' ينتقل التطبيق للتكبيرة التالية مع فاصل أمان زمني مدته 1.5 ثانية لمنع القفز السريع، مع استمرارية جلسة الميكروفون وإعادة تشغيلها تلقائياً عند أي انقطاع. وعند التكبيرة الرابعة، فإن قول 'السلام عليكم' ينهي الصلاة مباشرة.",
-      اردو: "'اللہ اکبر' کہنے پر اگلی تکبیر آتی ہے، جس میں 1.5 سیکنڈ کا وقفہ رکھا گیا ہے۔ چوتھی تکبیر پر 'السلام علیکم' کہنے سے نماز ختم ہو جاتی ہے۔",
-      Français: "Prononcer 'Allahu Akbar' avance au takbir suivant avec un délai de sécurité de 1,5s. Le micro redémarre automatiquement s'il se coupe, et dire 'As-Salamu Alaykum' au 4ème takbir clôture la prière.",
-      Deutsch: "Das Sprechen von 'Allahu Akbar' schaltet mit 1,5s Schutzpause weiter. Das Mikrofon startet bei Unterbrechung automatisch neu, und 'As-Salamu Alaykum' beendet das Gebet.",
-      Русский: "Произнесение 'Аллаху Акбар' переключает такбир с паузой безопасности 1.5 сек. Микрофон автоматически перезапускается в фоне, а слова 'Ас-Саляму Алейкум' завершают молитву.",
-      Español: "Decir 'Allahu Akbar' avanza con un margen de 1.5s para evitar saltos. El micrófono se reinicia automáticamente si se corta, y decir 'As-Salamu Alaykum' en el 4º takbir finaliza la oración.",
-      हिन्दी: "'अल्लाहु अकबर' कहने पर 1.5 सेकंड के सुरक्षित अंतराल के साथ अगली तकबीर आती है। चौथे तकबीर पर 'अस्सलामू अलैकुम' कहने से नमाज़ पूरी होती है।",
-      Indonesia: "Mengucapkan 'Allahu Akbar' memajukan takbir dengan jeda aman 1,5 detik. Mikrofon menyala stabil dan otomatis mulai ulang; mengucap 'As-Salamu Alaykum' pada takbir ke-4 mengakhiri shalat."
+      English: "Saying 'Allahu Akbar' advances to the next Takbeer based strictly on confirmed final speech results with a 1.5-second safety debounce to prevent skipping. Saying 'As-Salamu Alaykum' at the 4th Takbeer ends the prayer.",
+      العربية: "بمجرد التلفظ بـ 'الله أكبر' ينتقل التطبيق للتكبيرة التالية بناءً على النتائج النهائية المؤكدة فقط مع فاصل أمان زمني مدته 1.5 ثانية لمنع القفز السريع أو التأثر بالضوضاء. وعند التكبيرة الرابعة، فإن قول 'السلام عليكم' ينهي الصلاة مباشرة.",
+      اردو: "'اللہ اکبر' کہنے پر حتمی تصدیق شدہ آواز کی بنیاد پر اگلی تکبیر آتی ہے، جس میں 1.5 سیکنڈ کا وقفہ رکھا گیا ہے۔ چوتھی تکبیر پر 'السلام علیکم' کہنے سے نماز ختم ہو جاتی ہے۔",
+      Français: "Prononcer 'Allahu Akbar' avance au takbir suivant sur la base des résultats finaux confirmés avec un délai de sécurité de 1,5s. Dire 'As-Salamu Alaykum' au 4ème takbir clôture la prière.",
+      Deutsch: "Das Sprechen von 'Allahu Akbar' schaltet anhand bestätigter Endergebnisse mit 1,5s Schutzpause weiter, und 'As-Salamu Alaykum' beendet das Gebet.",
+      Русский: "Произнесение 'Аллаху Акбар' переключает такбир по подтверждённому финальному распознаванию с паузой 1.5 сек, а слова 'Ас-Саляму Алейкум' завершают молитву.",
+      Español: "Decir 'Allahu Akbar' avanza según el reconocimiento final confirmado con un margen de 1.5s, y decir 'As-Salamu Alaykum' en el 4º takbir finaliza la oración.",
+      हिन्दी: "'अल्लाहु अकबर' कहने पर अंतिम पुष्टि के आधार पर 1.5 सेकंड के सुरक्षित अंतराल के साथ अगली तकबीर आती है। चौथे तकबीर पर 'अस्सलामू अलैकुम' कहने से नमाज़ पूरी होती है।",
+      Indonesia: "Mengucapkan 'Allahu Akbar' memajukan takbir berdasarkan hasil akhir yang terkonfirmasi dengan jeda aman 1,5 detik; mengucap 'As-Salamu Alaykum' pada takbir ke-4 mengakhiri shalat."
     }
   },
   buttons: {
@@ -389,15 +464,15 @@ const hintDetails = {
       Indonesia: "Tombol Layar"
     },
     desc: {
-      English: "Displays custom on-screen navigation buttons. You can customize them live inside the actual prayer session: drag the floating toolbar anywhere, switch between single or dual buttons, drag each button independently or locked together within safe boundaries, and set individual positions per Takbeer.",
-      العربية: "يُظهر أزرار تنقل أنيقة فوق الشاشة. يمكنك تخصيصها عبر شريط الأدوات العائم القابل للسحب في أي مكان على الشاشة: اختيار نمط الزر الواحد أو الزرين، سحب كل زر بمفرده أو قفلهما معاً داخل منطقة الأمان، وحفظ موضع وحجم وشفافية مخصصة لكل تكبيرة على حدة.",
+      English: "Displays custom on-screen navigation buttons. You can customize them live inside the actual prayer session: drag the floating mini-toolbar anywhere, switch between single or dual buttons, drag each button independently or locked together within safe boundaries, and set individual positions per Takbeer.",
+      العربية: "يُظهر أزرار تنقل أنيقة فوق الشاشة. يمكنك تخصيصها عبر شريط الأدوات العائم المصغّر القابل للسحب في أي مكان على الشاشة: اختيار نمط الزر الواحد أو الزرين، سحب كل زر بمفرده أو قفلهما معاً داخل منطقة الأمان، وحفظ موضع وحجم وشفافية مخصصة لكل تكبيرة على حدة.",
       اردو: "اسکرین پر بٹن دکھاتا ہے۔ آپ نماز کے دوران تیرتے ٹول بار سے بٹنوں کا سائز، شفافیت، ایک یا دو بٹن، اور ہر تکبیر کے لیے الگ الگ جگہ ترتیب دے سکتے ہیں۔",
-      Français: "Affiche des boutons personnalisables en direct pendant la prière via une barre flottante déplaçable.",
-      Deutsch: "Zeigt Bildschirmschaltflächen an, die direkt über eine verschiebbare Symbolleiste angepasst werden können.",
-      Русский: "Отображает экранные кнопки с живой настройкой через перетаскиваемую панель инструментов.",
-      Español: "Muestra botones en pantalla personalizables en vivo mediante una barra flotante desplazable.",
-      हिन्दी: "स्क्रीन बटन प्रदर्शित करता है जिन्हें फ्लोटिंग टूलबार से लाइव कस्टमाइज़ किया जा सकता है।",
-      Indonesia: "Menampilkan tombol di layar yang dapat disesuaikan langsung melalui bilah alat mengambang."
+      Français: "Affiche des boutons personnalisables en direct pendant la prière via une barre flottante compacte déplaçable.",
+      Deutsch: "Zeigt Bildschirmschaltflächen an, die direkt über eine kompakte verschiebbare Symbolleiste angepasst werden können.",
+      Русский: "Отображает экранные кнопки с живой настройкой через компактную перетаскиваемую панель инструментов.",
+      Español: "Muestra botones en pantalla personalizables en vivo mediante una barra flotante compacta desplazable.",
+      हिन्दी: "स्क्रीन बटन प्रदर्शित करता है जिन्हें कॉम्पैक्ट फ्लोटिंग टूलबार से लाइव कस्टमाइज़ किया जा सकता है।",
+      Indonesia: "Menampilkan tombol di layar yang dapat disesuaikan langsung melalui bilah alat ringkas yang dapat digeser."
     }
   }
 };
