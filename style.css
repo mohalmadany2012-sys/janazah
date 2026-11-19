@@ -6,7 +6,8 @@
 }
 
 html, body {
-  overflow-x: hidden;
+  overflow: hidden;
+  overscroll-behavior: none;
   width: 100%;
   height: 100%;
 }
@@ -85,7 +86,7 @@ html[data-font="huge"] {
 body {
   font-family: 'Noto Sans Arabic', 'Inter', system-ui, -apple-system, sans-serif;
   font-size: var(--ui-font-size);
-  min-height: 100vh;
+  height: 100dvh;
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
@@ -121,7 +122,9 @@ body.light {
 .app {
   max-width: 600px;
   margin: 0 auto;
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
   background: var(--bg-primary);
   color: var(--text-primary);
   display: flex;
@@ -142,6 +145,8 @@ body.light {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1), transform 0.55s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.55s ease;
@@ -416,7 +421,7 @@ body.light .btn-update-later {
 }
 
 /* ==========================================================================
-   5. إصلاح المسافات في شاشة الصلاة ومحاذاة البطاقات المشدودة
+   5. شاشة الصلاة ومحاذاة البطاقات المشدودة
    ========================================================================== */
 .session-top-bar {
   display: flex;
@@ -511,6 +516,7 @@ body.light .btn-update-later {
   height: auto;
   max-height: calc(100dvh - 140px - env(safe-area-inset-bottom));
   overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: 0 14px 36px rgba(0,0,0,0.18);
   position: relative;
   margin-bottom: 0;
@@ -623,6 +629,7 @@ body.light .btn-update-later {
   transition: background 0.2s;
 }
 
+/* الشاشة الافتتاحية ثابتة بدون أي تمرير عشوائي أو ارتداد (Native App Feel) */
 .start-session-screen {
   display: flex;
   flex-direction: column;
@@ -630,6 +637,10 @@ body.light .btn-update-later {
   justify-content: center;
   padding: 16px 18px 94px;
   flex: 1;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
   text-align: center;
 }
 
@@ -680,7 +691,7 @@ body.light .btn-update-later {
 }
 
 /* ==========================================================================
-   6. التخصيص الحي لأزرار الشاشة وأحجام النصوص (Floating Draggable Toolbars)
+   6. التخصيص الحي لأزرار الشاشة وأحجام النصوص (Compact Mini-Toolbar)
    ========================================================================== */
 .on-screen-nav-controls {
   display: none;
@@ -761,34 +772,34 @@ body.light .btn-update-later {
   white-space: nowrap;
 }
 
-/* شريط الأدوات العائم القابل للسحب بدون أي حجز لمسافة علوية */
+/* شريط الأدوات العائم المصغّر (Compact Mini-Toolbar) */
 .live-customizer-toolbar {
   position: fixed;
-  top: 56px;
+  top: 52px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 24px);
-  max-width: 560px;
+  width: calc(100% - 36px);
+  max-width: 390px;
   z-index: 650;
   background: var(--surface-glass);
   border: 1.5px solid #38bdf8;
-  border-radius: 22px;
-  padding: 8px 14px 12px;
+  border-radius: 18px;
+  padding: 5px 10px 8px;
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
 }
 
 .customizer-drag-handle {
   width: 100%;
-  height: 22px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: grab;
   touch-action: none;
   user-select: none;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .customizer-drag-handle:active {
@@ -799,8 +810,8 @@ body.light .btn-update-later {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 6px;
+  width: 38px;
+  height: 4px;
   border-radius: 10px;
   background: rgba(56, 189, 248, 0.45);
   color: transparent;
@@ -811,19 +822,20 @@ body.light .btn-update-later {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  gap: 8px;
+  margin-bottom: 6px;
+  gap: 6px;
 }
 
 .customizer-title-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .customizer-title {
-  font-size: 0.9rem;
+  font-size: 0.76rem;
   font-weight: 800;
   color: #38bdf8;
   unicode-bidi: plaintext;
@@ -833,9 +845,9 @@ body.light .btn-update-later {
   background: rgba(56, 189, 248, 0.18);
   border: 1px solid rgba(56, 189, 248, 0.35);
   color: #38bdf8;
-  font-size: 0.72rem;
-  padding: 2px 8px;
-  border-radius: 12px;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 10px;
   font-weight: 700;
   unicode-bidi: plaintext;
 }
@@ -844,13 +856,14 @@ body.light .btn-update-later {
   background: #10b981;
   color: #fff;
   border: none;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 16px;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .btn-customizer-save:hover {
@@ -858,74 +871,81 @@ body.light .btn-update-later {
 }
 
 .customizer-toolbar-section {
-  margin-bottom: 8px;
-}
-
-.customizer-section-label {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  font-weight: 700;
   margin-bottom: 5px;
 }
 
+.customizer-section-label {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
 .customizer-pill-group {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  padding: 3px;
+}
+
+.customizer-pill-group .pill-btn {
+  padding: 5px 8px;
+  font-size: 0.72rem;
 }
 
 .customizer-toggle-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.78rem;
+  gap: 6px;
+  font-size: 0.7rem;
   color: var(--text-primary);
   cursor: pointer;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
 .customizer-toggle-label input {
-  width: 17px;
-  height: 17px;
+  width: 14px;
+  height: 14px;
   accent-color: #38bdf8;
 }
 
 .customizer-controls-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .customizer-control-col label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   color: var(--text-secondary);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   font-weight: 600;
 }
 
 .customizer-control-col input[type="range"] {
   width: 100%;
+  height: 4px;
   accent-color: #38bdf8;
 }
 
 .text-size-sliders-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 
 .text-size-slider-row {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .slider-label-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.76rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
   font-weight: 600;
 }
@@ -938,6 +958,7 @@ body.light .btn-update-later {
 
 .text-size-slider-row input[type="range"] {
   width: 100%;
+  height: 4px;
   accent-color: #38bdf8;
 }
 
@@ -945,23 +966,23 @@ body.light .btn-update-later {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  padding-top: 8px;
+  gap: 6px;
+  padding-top: 5px;
   border-top: 1px solid var(--card-border);
 }
 
 .customizer-checkbox-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.75rem;
+  gap: 5px;
+  font-size: 0.68rem;
   color: var(--text-primary);
   cursor: pointer;
 }
 
 .customizer-checkbox-label input {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   accent-color: #38bdf8;
 }
 
@@ -969,15 +990,15 @@ body.light .btn-update-later {
   background: transparent;
   border: 1px solid var(--card-border);
   color: var(--text-secondary);
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 0.74rem;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.68rem;
   cursor: pointer;
   white-space: nowrap;
 }
 
 /* ==========================================================================
-   7. زر الألوان الإضافية الفاخر ولوحة الـ 200 لون
+   7. زر الألوان الإضافية الفاخر ولوحة الـ 400 لون
    ========================================================================== */
 .color-palette-six {
   display: grid;
@@ -1051,6 +1072,7 @@ body.light .btn-update-later {
   margin: 12px 0;
   max-height: 52vh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 6px;
   scrollbar-width: thin;
 }
@@ -1117,6 +1139,7 @@ body.light .btn-update-later {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: calc(12px + env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
 }
 
@@ -1671,16 +1694,16 @@ body.light .tasbeeh-mini-widget {
 .text-display-toggle-group {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 10px;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .text-display-toggle-btn {
   background: rgba(128, 128, 128, 0.08);
   border: 1px solid var(--card-border);
-  padding: 8px 6px;
-  border-radius: 14px;
-  font-size: 0.78rem;
+  padding: 6px 4px;
+  border-radius: 12px;
+  font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -1696,7 +1719,7 @@ body.light .tasbeeh-mini-widget {
 }
 
 /* ==========================================================================
-   10. شريط التنقل السفلي الثابت والمحصن ضد أزرار النظام والتبويبات
+   10. شريط التنقل السفلي الثابت والألواح (Settings = Scrollable | Language = Fixed)
    ========================================================================== */
 .bottom-nav {
   position: fixed;
@@ -1744,9 +1767,28 @@ body.light .tasbeeh-mini-widget {
   display: none;
   padding: calc(14px + env(safe-area-inset-top)) 16px 90px;
   flex: 1;
+  height: 100%;
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .panel.active { display: block; }
+
+/* لوحة اختيار اللغات ثابتة ومتماسكة بدون تمرير عشوائي (Native App Feel) */
+#languagePanel {
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+#languagePanel.active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#languagePanel .setting-group {
+  margin-bottom: 0;
+}
 
 .setting-group { 
   background: var(--surface-card); 
@@ -1887,7 +1929,7 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 
 .lang-grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
 .lang-btn-item {
-  display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 9px 14px;
   background: linear-gradient(145deg, rgba(128,128,128,0.08), rgba(128,128,128,0.02));
   border: 1px solid var(--card-border); border-radius: 16px; cursor: pointer;
   font-size: 0.88rem; font-weight: 600; color: var(--text-primary);
@@ -1931,6 +1973,7 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
   -webkit-backdrop-filter: blur(12px);
   z-index: 20000; display: flex; align-items: center; justify-content: center;
   visibility: hidden; opacity: 0; transition: 0.2s ease;
+  overscroll-behavior: none;
 }
 
 .modal.active, .popup-overlay.active { visibility: visible; opacity: 1; }
@@ -1965,6 +2008,8 @@ input:checked + .switch-slider:before { transform: translateX(20px); }
 .onboarding-overlay {
   position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center;
   background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(16px);
+  overscroll-behavior: none;
+  touch-action: none;
 }
 .onboarding-card { width: 92%; max-width: 420px; border-radius: 32px; padding: 26px 20px; text-align: center; background: var(--surface-glass); color: var(--text-primary); }
 
