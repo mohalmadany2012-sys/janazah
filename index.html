@@ -202,7 +202,7 @@
       </div>
       <div class="pill-button-group customizer-pill-group">
         <button type="button" id="liveBtnStyleSingle" class="pill-btn active" onclick="setLiveButtonLayout('single')">زر تقدم واحد</button>
-        <button type="button" id="liveBtnStyleDual" class="pill-btn" onclick="setLiveButtonLayout('dual')">زرين (سابق / تالي)</button>
+        <button type="button" id="liveBtnStyleDual" class="pill-btn" onclick="setLiveButtonLayout('dual')">زرين</button>
       </div>
     </div>
 
@@ -299,10 +299,6 @@
   <button type="button" class="mini-widget-ctrl mini-widget-close" onclick="closeMiniTasbeehWidget()" title="إغلاق">✕</button>
 </div>
 
-<!-- عناصر مخفية لدعم Picture-in-Picture (PiP) فوق تطبيقات الهاتف الأخرى -->
-<canvas id="tasbeehPipCanvas" width="360" height="360" style="display:none;"></canvas>
-<video id="tasbeehPipVideo" muted playsinline style="display:none;"></video>
-
 <!-- السبحة الإلكترونية المبتكرة (الشاشة الكاملة + شبكة أزرار مرتبة + الأهداف المخصصة + قائمة أهدافي) -->
 <div id="tasbeehFullScreenModal" class="tasbeeh-fullscreen-view" style="display: none;">
   <div class="tasbeeh-fs-header">
@@ -315,10 +311,10 @@
         <span id="btnBackTasbeehText">العودة</span>
       </button>
       <button type="button" class="tasbeeh-grid-btn" onclick="minimizeTasbeehToFloating()">
-        <span>🗗</span>
+        <span style="font-size: 1.05rem; line-height: 1;">↙</span>
         <span id="btnMinimizeTasbeehText">تصغير</span>
       </button>
-      <button type="button" class="tasbeeh-grid-btn tasbeeh-pip-btn" id="btnTasbeehPip" onclick="toggleTasbeehPiP()">
+      <button type="button" class="tasbeeh-grid-btn tasbeeh-pip-btn" id="btnTasbeehPip" onclick="launchExternalFloatingTasbeeh()">
         <span>⧉</span>
         <span id="btnPipTasbeehText">عائم</span>
       </button>
